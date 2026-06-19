@@ -5,3 +5,8 @@ www/
 *.log
 .DS_Store
 /.idea/
+
+# Cypress artifacts
+cypress/videos/
+cypress/screenshots/
+cypress/downloads/

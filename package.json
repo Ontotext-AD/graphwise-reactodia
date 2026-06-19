@@ -12,7 +12,10 @@
   ],
   "scripts": {
     "build": "stencil build",
-    "start": "stencil build --dev --watch --serve"
+    "start": "stencil build --dev --watch --serve",
+    "cy:open": "cypress open",
+    "cy:run": "cypress run",
+    "cy:run:ci": "docker compose --ansi never up --exit-code-from cypress"
   },
   "dependencies": {
     "@reactodia/workspace": "^0.34.1",
@@ -25,6 +28,7 @@
     "@stencil/sass": "^3.2.3",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
+    "cypress": "^15.17.0",
     "rollup-plugin-node-polyfills": "^0.2.1"
   }
 }
