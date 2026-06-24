@@ -11,24 +11,26 @@
     "loader/"
   ],
   "scripts": {
-    "build": "stencil build",
-    "start": "stencil build --dev --watch --serve",
+    "reactodia:install": "cd reactodia-workspace && npm ci",
+    "reactodia:compile": "cd reactodia-workspace && npm run build && npm run typings",
+    "reactodia:dedupe-react": "node scripts/dedupe-react.mjs",
+    "reactodia:build": "npm run reactodia:install && npm run reactodia:compile && npm run reactodia:dedupe-react",
+    "build": "npm run reactodia:build && stencil build",
+    "start": "npm run reactodia:build && stencil build --dev --watch --serve",
     "cy:open": "cypress open",
     "cy:run": "cypress run",
     "cy:run:ci": "docker compose --ansi never up --exit-code-from cypress"
   },
-  "dependencies": {
-    "@reactodia/workspace": "^0.34.1",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
-  },
   "devDependencies": {
     "@rdfjs/types": "^2.0.1",
+    "@reactodia/workspace": "file:./reactodia-workspace",
     "@stencil/core": "4.35.1",
     "@stencil/sass": "^3.2.3",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "cypress": "^15.17.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "rollup-plugin-node-polyfills": "^0.2.1"
   }
 }

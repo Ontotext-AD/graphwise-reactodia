@@ -9,6 +9,12 @@ pipeline {
     }
 
     stages {
+        stage('Checkout Submodules') {
+            steps {
+                sh 'git submodule update --init --recursive'
+            }
+        }
+
         stage('Install Dependencies') {
             steps {
                 sh 'npm ci'
