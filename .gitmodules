@@ -1,0 +1,3 @@
+[submodule "reactodia-workspace"]
+	path = reactodia-workspace
+	url = https://github.com/Ontotext-AD/reactodia-workspace-fork.git
