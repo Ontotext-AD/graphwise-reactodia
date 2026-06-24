@@ -51,6 +51,7 @@ pipeline {
             steps {
                 script {
                     git_cmd.checkout(branch: params.GIT_BRANCH)
+                    sh 'git submodule update --init --recursive'
                     npm.prepareRelease(version: params.RELEASE_VERSION, scripts: ['build'])
 
                     withKsm(application: [
