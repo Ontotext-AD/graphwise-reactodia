@@ -1,6 +1,6 @@
 {
   "name": "graphwise-reactodia",
-  "version": "0.0.1-TR4",
+  "version": "0.0.1-TR5",
   "description": "Graphwise wrapper around the Reactodia graph explorer.",
   "license": "Apache-2.0",
   "author": "Ontotext AD",
