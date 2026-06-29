@@ -19,6 +19,10 @@ export class GraphwiseReactodiaSteps {
     return this.getComponent().find('.reactodia-unified-search__search-input');
   }
 
+  static getElements() {
+    return this.getCanvas().find('[data-element-id]');
+  }
+
   static setQueryFunction() {
     cy.getByTestId('set-query-function').click();
   }
@@ -34,6 +38,10 @@ export class GraphwiseReactodiaSteps {
 
   static switchRepository() {
     cy.getByTestId('switch-repository').click();
+  }
+
+  static setSeed() {
+    cy.getByTestId('set-seed').click();
   }
 
   static switchToFrench() {

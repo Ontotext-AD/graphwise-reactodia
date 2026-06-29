@@ -1,15 +1,17 @@
 import {Component, Element, h, Host, Prop, Watch} from '@stencil/core';
 import {Root} from 'react-dom/client';
-import {SerializedDiagram, SparqlDataProviderSettings, SparqlQueryFunction} from '@reactodia/workspace';
+import {SerializedDiagram, SparqlDataProviderSettings} from '@reactodia/workspace';
 import {exportReactodiaLayout, mountReactodia, unmountReactodia, updateReactodia} from './reactodia-app';
+import {LanguageKey} from './i18n/language-key';
+import {ReactodiaConfig} from './models/reactodia-config';
 
 /**
  * A web component that renders a graph with the Reactodia workspace.
  *
  * The component is backed by a SPARQL endpoint but is endpoint-agnostic: the host passes
- * the active repository's endpoint via `current-repository` and a `queryFunction` that
- * performs the actual HTTP request. Reactodia fetches all node, link and type data lazily
- * through them; the canvas starts empty and the user populates it via the search bar.
+ * the active repository's endpoint via `current-repository` and a `config.queryFunction`
+ * that performs the actual HTTP request. Reactodia fetches all node, link and type data
+ * lazily through them; the canvas starts empty and the user populates it via the search bar.
  *
  * The component is a thin wrapper around Reactodia: query configuration lives outside the
  * wrapper and is supplied through the `providerSettings` prop.
@@ -19,25 +21,28 @@ import {exportReactodiaLayout, mountReactodia, unmountReactodia, updateReactodia
   styleUrl: 'graphwise-reactodia.scss',
 })
 export class GraphwiseReactodia {
-  @Element() private readonly hostElement: HTMLElement;
+  @Element() private readonly hostElement?: HTMLElement;
 
   /**
    * The active repository id. Appended to {@link queryFunction} as the request `url`;
    * changing it re-points the graph at the new repository (and resets the canvas),
    * which is how runtime repository changes are handled.
    */
-  @Prop() currentRepository: string;
+  @Prop() currentRepository?: string;
 
   /**
-   * HTTP transport for the SPARQL requests. Set by the host so requests go through the host's HTTP layer (auth,
-   * interceptors) instead of a built-in `fetch`.
+   * Host-supplied configuration: the SPARQL `queryFunction` transport and an optional `seed`
+   * set of entities to pre-populate the canvas with. A DOM property (an object, not an
+   * attribute) passed in from outside the wrapper.
+   *
+   * Read once on mount; not watched, as it only sets up the data source and initial canvas.
    */
-  @Prop() queryFunction: SparqlQueryFunction;
+  @Prop() config?: ReactodiaConfig;
 
   /**
    * UI language code (e.g. `en`, `fr`) for the Reactodia interface. Defaults to English.
    */
-  @Prop() language = 'en';
+  @Prop() language = LanguageKey.EN;
 
   /**
    * Query preset for the SPARQL data provider, owned and configured by the host. A DOM
@@ -47,7 +52,7 @@ export class GraphwiseReactodia {
    */
   @Prop() providerSettings?: SparqlDataProviderSettings;
 
-  private reactRoot: Root;
+  private reactRoot?: Root;
 
   @Watch('currentRepository')
   @Watch('providerSettings')
@@ -86,8 +91,8 @@ export class GraphwiseReactodia {
       throw new Error('currentRepository is required');
     }
 
-    if (!this.queryFunction) {
-      throw new Error('queryFunction is required');
+    if (!this.config?.queryFunction) {
+      throw new Error('config.queryFunction is required');
     }
 
     if (!this.hostElement) {
@@ -97,7 +102,7 @@ export class GraphwiseReactodia {
     const props = {
       initialDiagram,
       currentRepository: this.currentRepository,
-      queryFunction: this.queryFunction,
+      config: this.config,
       language: this.language,
       providerSettings: this.providerSettings,
     };
