@@ -19,6 +19,14 @@ export class GraphwiseReactodiaSteps {
     return this.getComponent().find('.reactodia-unified-search__search-input');
   }
 
+  static getElements() {
+    return this.getCanvas().find('[data-element-id]');
+  }
+
+  static getLinks() {
+    return this.getCanvas().find('.reactodia-link');
+  }
+
   static setQueryFunction() {
     cy.getByTestId('set-query-function').click();
   }
@@ -34,6 +42,14 @@ export class GraphwiseReactodiaSteps {
 
   static switchRepository() {
     cy.getByTestId('switch-repository').click();
+  }
+
+  static setSeed() {
+    cy.getByTestId('set-seed').click();
+  }
+
+  static setSeedGraph() {
+    cy.getByTestId('set-seed-graph').click();
   }
 
   static switchToFrench() {

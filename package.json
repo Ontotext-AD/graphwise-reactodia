@@ -1,11 +1,23 @@
 {
   "name": "graphwise-reactodia",
-  "version": "0.0.1-TR5",
+  "version": "0.0.1-TR6",
   "description": "Graphwise wrapper around the Reactodia graph explorer.",
   "license": "Apache-2.0",
   "author": "Ontotext AD",
   "main": "dist/index.cjs.js",
+  "module": "dist/esm/index.js",
   "collection": "dist/collection/collection-manifest.json",
+  "exports": {
+    ".": {
+      "import": "./dist/graphwise-reactodia/graphwise-reactodia.esm.js",
+      "require": "./dist/index.cjs.js"
+    },
+    "./loader": {
+      "import": "./loader/index.js",
+      "require": "./loader/index.cjs.js",
+      "types": "./loader/index.d.ts"
+    }
+  },
   "files": [
     "dist/",
     "loader/"
