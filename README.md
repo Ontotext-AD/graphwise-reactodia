@@ -34,6 +34,38 @@ npm run build
 (`reactodia:install` + `reactodia:compile`), then runs `reactodia:dedupe-react` to remove the fork's own
 `react`/`react-dom` copies so the bundle ends up with a single React instance.
 
+## Seeding the canvas
+
+By default the canvas starts empty and the user populates it through the workspace search bar. The host can
+instead pre-populate it on startup by passing seed data through `config` (see `ReactodiaAppProps`). Seeding is
+skipped when an `initialDiagram` is restored (e.g. after a language-change remount). There are two mechanisms,
+handled in `reactodia-app.ts`:
+
+### `seedIris` — lazy seed
+
+`config.seedIris` is a list of element(node) IRIs. Each IRI is placed as a placeholder node, then `seedCanvas` calls
+the model's `requestData()` so both the element data **and** its links are fetched from the SPARQL endpoint.
+Use this when the relationships are persisted in the repository and can be resolved lazily.
+
+### `seedGraph` — pre-resolved seed
+
+`config.seedGraph` is a list of `Triple` objects (mirroring GraphDB's `rest/explore-graph` shape).
+`seedGraphCanvas` places each `source`/`target` as an element and draws the supplied links directly, then
+requests **element data only** (`requestElementData`) — it does *not* ask the endpoint for links.
+
+Use this for the result of a CONSTRUCT/DESCRIBE query, whose relationships are computed and therefore not
+persisted in the DB, so they can't be fetched lazily and must be supplied by the host.
+
+`Triple` (`models/triple.ts`):
+
+| Field           | Description                                              |
+|-----------------|----------------------------------------------------------|
+| `source`        | Source element IRI.                                      |
+| `target`        | Target element IRI.                                      |
+| `rawPredicates` | Full (absolute) predicate IRIs — used as the link types. |
+
+When both are supplied `seedGraph` takes precedence over `seedIris`.
+
 ## Editing the fork
 
 Reactodia lives in the `reactodia-workspace/` submodule, which is its own git repo (remote:

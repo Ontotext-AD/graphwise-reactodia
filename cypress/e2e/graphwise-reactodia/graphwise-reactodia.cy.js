@@ -55,4 +55,55 @@ describe('graphwise-reactodia', () => {
     // Then the @Watch handler re-renders in place - the workspace is rebuilt, not torn down
     GraphwiseReactodiaSteps.getWorkspace().should('exist');
   });
+
+  it('Should seed the canvas only from the seed present when the workspace mounts', () => {
+    // Given a workspace mounted without a seed
+    GraphwiseReactodiaSteps.provideRequiredProps();
+    GraphwiseReactodiaSteps.getCanvas().should('exist');
+    // Then nothing should be placed on the canvas
+    GraphwiseReactodiaSteps.getElements().should('not.exist');
+
+    // When, I re-visit the page with a seed
+    GraphwiseReactodiaSteps.visit();
+    GraphwiseReactodiaSteps.setSeed();
+    GraphwiseReactodiaSteps.provideRequiredProps();
+
+    // Then each seeded IRI should be placed on the canvas as an element
+    GraphwiseReactodiaSteps.getElements().should('have.length', 2);
+
+    // When, I switch the language to French (effectively reloading the workspace)
+    GraphwiseReactodiaSteps.switchToFrench();
+
+    // Then, the language should be switched, and the number of nodes should be the same, because the layout should be
+    // preserved before switching
+    GraphwiseReactodiaSteps.getElements().should('have.length', 2);
+  });
+
+  it('Should seed the canvas with the pre-resolved graph, drawing its edges directly', () => {
+    // Given a pre-resolved graph seed (e.g. a CONSTRUCT result) staged before the workspace mounts
+    GraphwiseReactodiaSteps.setSeedGraph();
+
+    // When the workspace mounts with the required props
+    GraphwiseReactodiaSteps.provideRequiredProps();
+
+    // Then both endpoints of the seed link are placed on the canvas as elements
+    GraphwiseReactodiaSteps.getElements().should('have.length', 2);
+    // And the pre-resolved edge is drawn directly, without querying the SPARQL endpoint
+    GraphwiseReactodiaSteps.getLinks().should('have.length', 1);
+  });
+
+  it('Should preserve the seeded graph when the workspace reloads', () => {
+    // Given a workspace mounted from a pre-resolved graph seed
+    GraphwiseReactodiaSteps.setSeedGraph();
+    GraphwiseReactodiaSteps.provideRequiredProps();
+    GraphwiseReactodiaSteps.getElements().should('have.length', 2);
+    GraphwiseReactodiaSteps.getLinks().should('have.length', 1);
+
+    // When the language is switched to French (effectively reloading the workspace)
+    GraphwiseReactodiaSteps.switchToFrench();
+
+    // Then the seeded graph is preserved: the same elements and edge remain on the canvas
+    GraphwiseReactodiaSteps.getElements().should('have.length', 2);
+    GraphwiseReactodiaSteps.getLinks().should('have.length', 1);
+  });
 });

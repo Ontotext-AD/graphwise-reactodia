@@ -5,45 +5,49 @@
  * It contains typing information for all components that exist in this project.
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
-import { SparqlDataProviderSettings, SparqlQueryFunction } from "@reactodia/workspace";
-export { SparqlDataProviderSettings, SparqlQueryFunction } from "@reactodia/workspace";
+import { ReactodiaConfig } from "./components/graphwise-reactodia/models/reactodia-config";
+import { LanguageKey } from "./components/graphwise-reactodia/i18n/language-key";
+import { SparqlDataProviderSettings } from "@reactodia/workspace";
+export { ReactodiaConfig } from "./components/graphwise-reactodia/models/reactodia-config";
+export { LanguageKey } from "./components/graphwise-reactodia/i18n/language-key";
+export { SparqlDataProviderSettings } from "@reactodia/workspace";
 export namespace Components {
     /**
      * A web component that renders a graph with the Reactodia workspace.
      * The component is backed by a SPARQL endpoint but is endpoint-agnostic: the host passes
-     * the active repository's endpoint via `current-repository` and a `queryFunction` that
-     * performs the actual HTTP request. Reactodia fetches all node, link and type data lazily
-     * through them; the canvas starts empty and the user populates it via the search bar.
+     * the active repository's endpoint via `current-repository` and a `config.queryFunction`
+     * that performs the actual HTTP request. Reactodia fetches all node, link and type data
+     * lazily through them; the canvas starts empty and the user populates it via the search bar.
      * The component is a thin wrapper around Reactodia: query configuration lives outside the
      * wrapper and is supplied through the `providerSettings` prop.
      */
     interface GraphwiseReactodia {
         /**
-          * The active repository id. Appended to {@link queryFunction} as the request `url`; changing it re-points the graph at the new repository (and resets the canvas), which is how runtime repository changes are handled.
+          * Host-supplied configuration: the SPARQL `queryFunction` transport and an optional `seed` set of entities to pre-populate the canvas with. A DOM property (an object, not an attribute) passed in from outside the wrapper.  Read once on mount; not watched, as it only sets up the data source and initial canvas.
          */
-        "currentRepository": string;
+        "config"?: ReactodiaConfig;
+        /**
+          * The active repository id. Appended to {@link queryFunction } as the request `url`; changing it re-points the graph at the new repository (and resets the canvas), which is how runtime repository changes are handled.
+         */
+        "currentRepository"?: string;
         /**
           * UI language code (e.g. `en`, `fr`) for the Reactodia interface. Defaults to English.
-          * @default 'en'
+          * @default LanguageKey.EN
          */
-        "language": string;
+        "language": LanguageKey;
         /**
           * Query preset for the SPARQL data provider, owned and configured by the host. A DOM property (an object, not an attribute) passed in from outside the wrapper. When omitted, the data provider falls back to Reactodia's generic OWL/RDFS preset. Changing it rebuilds the data provider and resets the canvas.
          */
         "providerSettings"?: SparqlDataProviderSettings;
-        /**
-          * HTTP transport for the SPARQL requests. Set by the host so requests go through the host's HTTP layer (auth, interceptors) instead of a built-in `fetch`.
-         */
-        "queryFunction": SparqlQueryFunction;
     }
 }
 declare global {
     /**
      * A web component that renders a graph with the Reactodia workspace.
      * The component is backed by a SPARQL endpoint but is endpoint-agnostic: the host passes
-     * the active repository's endpoint via `current-repository` and a `queryFunction` that
-     * performs the actual HTTP request. Reactodia fetches all node, link and type data lazily
-     * through them; the canvas starts empty and the user populates it via the search bar.
+     * the active repository's endpoint via `current-repository` and a `config.queryFunction`
+     * that performs the actual HTTP request. Reactodia fetches all node, link and type data
+     * lazily through them; the canvas starts empty and the user populates it via the search bar.
      * The component is a thin wrapper around Reactodia: query configuration lives outside the
      * wrapper and is supplied through the `providerSettings` prop.
      */
@@ -61,30 +65,30 @@ declare namespace LocalJSX {
     /**
      * A web component that renders a graph with the Reactodia workspace.
      * The component is backed by a SPARQL endpoint but is endpoint-agnostic: the host passes
-     * the active repository's endpoint via `current-repository` and a `queryFunction` that
-     * performs the actual HTTP request. Reactodia fetches all node, link and type data lazily
-     * through them; the canvas starts empty and the user populates it via the search bar.
+     * the active repository's endpoint via `current-repository` and a `config.queryFunction`
+     * that performs the actual HTTP request. Reactodia fetches all node, link and type data
+     * lazily through them; the canvas starts empty and the user populates it via the search bar.
      * The component is a thin wrapper around Reactodia: query configuration lives outside the
      * wrapper and is supplied through the `providerSettings` prop.
      */
     interface GraphwiseReactodia {
         /**
-          * The active repository id. Appended to {@link queryFunction} as the request `url`; changing it re-points the graph at the new repository (and resets the canvas), which is how runtime repository changes are handled.
+          * Host-supplied configuration: the SPARQL `queryFunction` transport and an optional `seed` set of entities to pre-populate the canvas with. A DOM property (an object, not an attribute) passed in from outside the wrapper.  Read once on mount; not watched, as it only sets up the data source and initial canvas.
+         */
+        "config"?: ReactodiaConfig;
+        /**
+          * The active repository id. Appended to {@link queryFunction } as the request `url`; changing it re-points the graph at the new repository (and resets the canvas), which is how runtime repository changes are handled.
          */
         "currentRepository"?: string;
         /**
           * UI language code (e.g. `en`, `fr`) for the Reactodia interface. Defaults to English.
-          * @default 'en'
+          * @default LanguageKey.EN
          */
-        "language"?: string;
+        "language"?: LanguageKey;
         /**
           * Query preset for the SPARQL data provider, owned and configured by the host. A DOM property (an object, not an attribute) passed in from outside the wrapper. When omitted, the data provider falls back to Reactodia's generic OWL/RDFS preset. Changing it rebuilds the data provider and resets the canvas.
          */
         "providerSettings"?: SparqlDataProviderSettings;
-        /**
-          * HTTP transport for the SPARQL requests. Set by the host so requests go through the host's HTTP layer (auth, interceptors) instead of a built-in `fetch`.
-         */
-        "queryFunction"?: SparqlQueryFunction;
     }
     interface IntrinsicElements {
         "graphwise-reactodia": GraphwiseReactodia;
@@ -97,9 +101,9 @@ declare module "@stencil/core" {
             /**
              * A web component that renders a graph with the Reactodia workspace.
              * The component is backed by a SPARQL endpoint but is endpoint-agnostic: the host passes
-             * the active repository's endpoint via `current-repository` and a `queryFunction` that
-             * performs the actual HTTP request. Reactodia fetches all node, link and type data lazily
-             * through them; the canvas starts empty and the user populates it via the search bar.
+             * the active repository's endpoint via `current-repository` and a `config.queryFunction`
+             * that performs the actual HTTP request. Reactodia fetches all node, link and type data
+             * lazily through them; the canvas starts empty and the user populates it via the search bar.
              * The component is a thin wrapper around Reactodia: query configuration lives outside the
              * wrapper and is supplied through the `providerSettings` prop.
              */
