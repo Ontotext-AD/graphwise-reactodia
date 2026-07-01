@@ -55,4 +55,27 @@ describe('graphwise-reactodia', () => {
     // Then the @Watch handler re-renders in place - the workspace is rebuilt, not torn down
     GraphwiseReactodiaSteps.getWorkspace().should('exist');
   });
+
+  it('Should seed the canvas only from the seed present when the workspace mounts', () => {
+    // Given a workspace mounted without a seed
+    GraphwiseReactodiaSteps.provideRequiredProps();
+    GraphwiseReactodiaSteps.getCanvas().should('exist');
+    // Then nothing should be placed on the canvas
+    GraphwiseReactodiaSteps.getElements().should('not.exist');
+
+    // When, I re-visit the page with a seed
+    GraphwiseReactodiaSteps.visit();
+    GraphwiseReactodiaSteps.setSeed();
+    GraphwiseReactodiaSteps.provideRequiredProps();
+
+    // Then each seeded IRI should be placed on the canvas as an element
+    GraphwiseReactodiaSteps.getElements().should('have.length', 2);
+
+    // When, I switch the language to French (effectively reloading the workspace)
+    GraphwiseReactodiaSteps.switchToFrench();
+
+    // Then, the language should be switched, and the number of nodes should be the same, because the layout should be
+    // preserved before switching
+    GraphwiseReactodiaSteps.getElements().should('have.length', 2);
+  });
 });

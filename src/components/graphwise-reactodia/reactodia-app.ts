@@ -5,8 +5,6 @@ import {
   OwlRdfsSettings,
   SerializedDiagram,
   SparqlDataProvider,
-  SparqlDataProviderSettings,
-  SparqlQueryFunction,
   useLoadedWorkspace,
   Workspace,
   WorkspaceContext,
@@ -14,6 +12,7 @@ import {
 import {blockingDefaultLayout} from '@reactodia/workspace/layout-sync';
 import {ReactodiaAppProps} from './models/reactodia-app-props';
 import {TRANSLATIONS} from './i18n/translations';
+import {LanguageKey} from './i18n/language-key';
 
 
 /**
@@ -23,7 +22,7 @@ import {TRANSLATIONS} from './i18n/translations';
  * Reactodia never re-reads the translations, so the component must be remounted
  * to switch the UI language (handled in `graphwise-reactodia.tsx`).
  */
-function translationsForLanguage(language: string): readonly object[] {
+function translationsForLanguage(language: LanguageKey): readonly object[] {
   const translation = TRANSLATIONS[language]
   return translation ? [translation] : [];
  }
@@ -40,16 +39,26 @@ let workspaceContext: WorkspaceContext | null = null;
  * query preset. The host owns the query configuration and passes it in via props; when none
  * is provided we fall back to Reactodia's generic {@link OwlRdfsSettings} OWL/RDFS preset.
  */
-function createDataProvider(
-  currentRepository: string,
-  queryFunction: SparqlQueryFunction,
-  settings?: SparqlDataProviderSettings
-): SparqlDataProvider {
+function createDataProvider(props: ReactodiaAppProps): SparqlDataProvider {
+  const {currentRepository, config, providerSettings} = props;
   return new SparqlDataProvider({
     endpointUrl: currentRepository,
     queryMethod: 'POST',
-    queryFunction,
-  }, settings);
+    queryFunction: config.queryFunction,
+  }, providerSettings);
+}
+
+/**
+ * Places the seed entities on the canvas. Each IRI is added as a placeholder element, and data is then loaded for the
+ * respective nodes using the {@link DataDiagramModel.requestData} method.
+ */
+async function seedCanvas(context: WorkspaceContext, seed: string[], signal: AbortSignal): Promise<void> {
+  const {model, performLayout} = context;
+  for (const iri of seed) {
+    model.createElement(iri);
+  }
+  await model.requestData();
+  await performLayout({signal});
 }
 
 /**
@@ -57,17 +66,17 @@ function createDataProvider(
  *
  * Authored with `React.createElement` (no TSX) on purpose, since there are differences in stencil and react
  *
- * The canvas starts empty; the user populates it through the workspace search bar
- * (Reactodia's `DefaultWorkspace` unified search), which is backed by the SPARQL
- * data provider's lookup.
+ * Without a seed the canvas starts empty and the user populates it through the workspace
+ * search bar (Reactodia's `DefaultWorkspace` unified search), backed by the SPARQL data
+ * provider's lookup. With a seed, the seeded nodes are placed on the canvas on startup.
  */
 function ReactodiaApp(props: ReactodiaAppProps) {
-  const {currentRepository, queryFunction, language, initialDiagram, providerSettings} = props;
+  const {language, initialDiagram, config} = props;
 
   const {onMount} = useLoadedWorkspace(async ({context, signal}) => {
     workspaceContext = context;
     const {model} = context;
-    const dataProvider = createDataProvider(currentRepository, queryFunction, providerSettings);
+    const dataProvider = createDataProvider(props);
     // A language change remounts this component to rebuild the workspace with the new
     // translation bundle; restoring the exported diagram keeps the user's canvas intact.
     // This is done because there is no existing mechanism to re-translate the UI at runtime (not for the UI labels at least)
@@ -75,6 +84,9 @@ function ReactodiaApp(props: ReactodiaAppProps) {
       await model.importLayout({dataProvider, diagram: initialDiagram, signal});
     } else {
       await model.createNewDiagram({dataProvider, signal});
+      if (config.seedIris) {
+        await seedCanvas(context, config.seedIris, signal);
+      }
     }
   }, [language]);
 
@@ -118,7 +130,7 @@ export async function updateReactodia(props: ReactodiaAppProps): Promise<void> {
     return;
   }
   const {model} = workspaceContext;
-  const dataProvider = createDataProvider(props.currentRepository, props.queryFunction, props.providerSettings);
+  const dataProvider = createDataProvider(props);
   await model.createNewDiagram({dataProvider});
 }
 
