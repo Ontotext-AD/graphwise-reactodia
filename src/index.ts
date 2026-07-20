@@ -1,3 +1,1 @@
-export {
-
-};
+export {CLEAR_DIAGRAM_STORAGE_EVENT} from './components/graphwise-reactodia/models/clear-diagram-storage-event';

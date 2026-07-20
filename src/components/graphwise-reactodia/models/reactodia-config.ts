@@ -14,6 +14,7 @@ export interface ReactodiaConfig {
    * HTTP layer (auth, interceptors) instead of a built-in `fetch`.
    */
   queryFunction: SparqlQueryFunction;
+
   /**
    * IRIs of the elements(nodes) to place on the canvas on startup. When provided, each IRI is added
    * as an element and its data (labels, types, properties) and links are resolved from the

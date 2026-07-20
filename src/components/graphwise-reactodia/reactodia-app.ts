@@ -1,20 +1,26 @@
 import {createElement} from 'react';
 import {createRoot, Root} from 'react-dom/client';
 import {
+  DataDiagramModel,
+  DataProvider,
   DefaultWorkspace,
   OwlRdfsSettings,
   SerializedDiagram,
   SparqlDataProvider,
   useLoadedWorkspace,
   Workspace,
-  WorkspaceContext,
+  WorkspaceContext
 } from '@reactodia/workspace';
 import {blockingDefaultLayout} from '@reactodia/workspace/layout-sync';
 import {ReactodiaAppProps} from './models/reactodia-app-props';
 import {Triple} from './models/triple';
 import {TRANSLATIONS} from './i18n/translations';
 import {LanguageKey} from './i18n/language-key';
-
+import {service} from './providers/service/service-inject';
+import {DiagramService} from './services/diagram/diagram.service';
+import {DiagramStorageService} from './services/diagram-storage/diagram-storage.service';
+import {EventService} from './services/event/event.service';
+import {SubscriptionList} from './models/subscription-list';
 
 /**
  * Reactodia ships English as its built-in default bundle, so English needs no override.
@@ -24,9 +30,9 @@ import {LanguageKey} from './i18n/language-key';
  * to switch the UI language (handled in `graphwise-reactodia.tsx`).
  */
 function translationsForLanguage(language: LanguageKey): readonly object[] {
-  const translation = TRANSLATIONS[language]
+  const translation = TRANSLATIONS[language];
   return translation ? [translation] : [];
- }
+}
 
 /**
  * The workspace context captured from the Workspace `ref` once it mounts.
@@ -34,6 +40,13 @@ function translationsForLanguage(language: LanguageKey): readonly object[] {
  * runs outside React and therefore cannot call the `useWorkspace` hook.
  */
 let workspaceContext: WorkspaceContext | null = null;
+
+/**
+ * Active listeners that persist diagram edits to local storage. Populated when the workspace
+ * mounts and released in {@link unmountReactodia}, so persistence follows the same lifecycle as
+ * the React root.
+ */
+const subscriptions = new SubscriptionList();
 
 /**
  * Builds a Reactodia {@link SparqlDataProvider} for the given endpoint using the supplied
@@ -45,7 +58,7 @@ function createDataProvider(props: ReactodiaAppProps): SparqlDataProvider {
   return new SparqlDataProvider({
     endpointUrl: currentRepository,
     queryMethod: 'POST',
-    queryFunction: config.queryFunction,
+    queryFunction: config.queryFunction
   }, providerSettings);
 }
 
@@ -53,8 +66,9 @@ function createDataProvider(props: ReactodiaAppProps): SparqlDataProvider {
  * Places the seed entities on the canvas. Each IRI is added as a placeholder element, and data is then loaded for the
  * respective nodes using the {@link DataDiagramModel.requestData} method.
  */
-async function seedCanvas(context: WorkspaceContext, seed: string[], signal: AbortSignal): Promise<void> {
+async function seedIrisToCanvas(context: WorkspaceContext, dataProvider: DataProvider, seed: string[], signal: AbortSignal): Promise<void> {
   const {model, performLayout} = context;
+  await model.createNewDiagram({dataProvider, signal});
   for (const iri of seed) {
     model.createElement(iri);
   }
@@ -64,11 +78,12 @@ async function seedCanvas(context: WorkspaceContext, seed: string[], signal: Abo
 
 /**
  * Places a pre-resolved graph (e.g. a CONSTRUCT query result) on the canvas. The difference between this and
- * {@link seedCanvas} is that this method does not request link data from the SPARQL endpoint, since describe/construct
+ * {@link seedIrisToCanvas} is that this method does not request link data from the SPARQL endpoint, since describe/construct
  * queries are not persisted in the DB. Here we expect provided links and query for element data only
  */
-async function seedGraphCanvas(context: WorkspaceContext, links: readonly Triple[], signal: AbortSignal): Promise<void> {
+async function seedGraphToCanvas(context: WorkspaceContext, dataProvider: DataProvider, links: readonly Triple[], signal: AbortSignal): Promise<void> {
   const {model, performLayout} = context;
+  await model.createNewDiagram({dataProvider, signal});
   const uniqueIris = new Set<string>();
 
   links.forEach((link) => {
@@ -93,6 +108,33 @@ async function seedGraphCanvas(context: WorkspaceContext, links: readonly Triple
 }
 
 /**
+ * Subscribes to the model's changes so diagram edits are persisted to local storage. The
+ * subscription is tracked in {@link subscriptions} so it is released together with the React
+ * root in {@link unmountReactodia}.
+ */
+function onDiagramChange(model: DataDiagramModel): void {
+  const storage = service(DiagramStorageService);
+  const diagramService = service(DiagramService);
+  subscriptions.add(
+    diagramService.subscribeToDiagramChange(model, (diagram) => storage.save(diagram))
+  );
+}
+
+/**
+ * Subscribes to the host's "clear persisted diagram" command so the saved layout is dropped on
+ * request (e.g. before a fresh seed should take precedence over previously saved edits). The
+ * subscription is tracked in {@link subscriptions} so it is released together with the React
+ * root in {@link unmountReactodia}.
+ */
+function onClearDiagramStorage(): void {
+  const storage = service(DiagramStorageService);
+  const eventService = service(EventService);
+  subscriptions.add(
+    eventService.subscribeToClearDiagramStorage(() => storage.clear())
+  );
+}
+
+/**
  * The Reactodia workspace React component.
  *
  * Authored with `React.createElement` (no TSX) on purpose, since there are differences in stencil and react
@@ -102,24 +144,30 @@ async function seedGraphCanvas(context: WorkspaceContext, links: readonly Triple
  * provider's lookup. With a seed, the seeded nodes are placed on the canvas on startup.
  */
 function ReactodiaApp(props: ReactodiaAppProps) {
-  const {language, initialDiagram, config} = props;
+  const {language, config} = props;
+  const currentDiagram = props.isReload ? exportReactodiaLayout() : undefined
 
   const {onMount} = useLoadedWorkspace(async ({context, signal}) => {
     workspaceContext = context;
     const {model} = context;
+    onDiagramChange(model);
+    onClearDiagramStorage();
     const dataProvider = createDataProvider(props);
-    // A language change remounts this component to rebuild the workspace with the new
-    // translation bundle; restoring the exported diagram keeps the user's canvas intact.
-    // This is done because there is no existing mechanism to re-translate the UI at runtime (not for the UI labels at least)
-    if (initialDiagram) {
-      await model.importLayout({dataProvider, diagram: initialDiagram, signal});
+    const isReload = props.isReload;
+    const savedDiagram = service(DiagramStorageService).load();
+
+    if (isReload) {
+      // Simply reload without using the current state. This may happen when the user switches the language at runtime.
+      // since there is no existing mechanism to re-translate the UI at runtime (not for the UI labels at least)
+      await model.importLayout({dataProvider, diagram: currentDiagram, signal});
+    } else if (config.seedIris?.length) {
+      await seedIrisToCanvas(context, dataProvider, config.seedIris, signal);
+    } else if (config.seedGraph?.length) {
+      await seedGraphToCanvas(context, dataProvider, config.seedGraph, signal);
     } else {
-      await model.createNewDiagram({dataProvider, signal});
-      if (config.seedGraph?.length) {
-        await seedGraphCanvas(context, config.seedGraph, signal);
-      } else if (config.seedIris?.length) {
-        await seedCanvas(context, config.seedIris, signal);
-      }
+      // Restore the previously saved layout when present, otherwise start empty. Either way this binds the
+      // data provider (savedDiagram is undefined -> empty diagram), so the unified search/lookup works.
+      await model.importLayout({dataProvider, diagram: savedDiagram, signal});
     }
   }, [language]);
 
@@ -179,5 +227,6 @@ export function exportReactodiaLayout(): SerializedDiagram | undefined {
  * Unmounts the Reactodia application.
  */
 export function unmountReactodia(root: Root): void {
+  subscriptions.unsubscribeAll();
   root.unmount();
 }

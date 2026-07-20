@@ -79,6 +79,32 @@ describe('graphwise-reactodia', () => {
     GraphwiseReactodiaSteps.getElements().should('have.length', 2);
   });
 
+  it('Should restore the persisted diagram on refresh, until the host clears it', () => {
+    // Given a workspace seeded with two nodes, which persists the layout to local storage
+    GraphwiseReactodiaSteps.setSeed();
+    GraphwiseReactodiaSteps.provideRequiredProps();
+    GraphwiseReactodiaSteps.getElements().should('have.length', 2);
+    // And the layout has actually reached local storage (the save is debounced)
+    GraphwiseReactodiaSteps.getStoredDiagram().should('not.be.null');
+
+    // When the page is refreshed and mounted again *without* a seed, so nothing can re-seed the canvas
+    GraphwiseReactodiaSteps.visit();
+    GraphwiseReactodiaSteps.provideRequiredProps();
+
+    // Then the diagram is restored from local storage rather than starting empty
+    GraphwiseReactodiaSteps.getElements().should('have.length', 2);
+
+    // When the host clears the persisted diagram and the page is refreshed again
+    GraphwiseReactodiaSteps.clearDiagramStorage();
+    GraphwiseReactodiaSteps.getStoredDiagram().should('be.null');
+    GraphwiseReactodiaSteps.visit();
+    GraphwiseReactodiaSteps.provideRequiredProps();
+
+    // Then there is nothing left to restore and the canvas starts empty
+    GraphwiseReactodiaSteps.getCanvas().should('exist');
+    GraphwiseReactodiaSteps.getElements().should('not.exist');
+  });
+
   it('Should seed the canvas with the pre-resolved graph, drawing its edges directly', () => {
     // Given a pre-resolved graph seed (e.g. a CONSTRUCT result) staged before the workspace mounts
     GraphwiseReactodiaSteps.setSeedGraph();

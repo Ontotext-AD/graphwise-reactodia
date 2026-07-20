@@ -37,6 +37,16 @@ export const config: Config = {
   plugins: [
     sass(),
   ],
+  // Unit tests run through Stencil's Jest integration (`stencil test --spec`), so the Stencil
+  // compiler handles TS/JSX/decorators. Keep the runner out of the reactodia fork and e2e dirs.
+  testing: {
+    testPathIgnorePatterns: [
+      '/node_modules/',
+      '/dist/',
+      '/reactodia-workspace/',
+      '/cypress/',
+    ],
+  },
   // Reactodia uses some Node APIs. Polyfill them for the browser bundle.
   // https://stenciljs.com/docs/module-bundling#node-polyfills
   rollupPlugins: {
