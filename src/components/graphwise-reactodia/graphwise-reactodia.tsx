@@ -1,7 +1,7 @@
 import {Component, Element, h, Host, Prop, Watch} from '@stencil/core';
 import {Root} from 'react-dom/client';
-import {SerializedDiagram, SparqlDataProviderSettings} from '@reactodia/workspace';
-import {exportReactodiaLayout, mountReactodia, unmountReactodia, updateReactodia} from './reactodia-app';
+import {SparqlDataProviderSettings} from '@reactodia/workspace';
+import {mountReactodia, unmountReactodia, updateReactodia} from './reactodia-app';
 import {LanguageKey} from './i18n/language-key';
 import {ReactodiaConfig} from './models/reactodia-config';
 
@@ -63,14 +63,14 @@ export class GraphwiseReactodia {
   @Watch('language')
   onLanguageChange(): void {
     // The translations are evaluated by the workspace at construction, so the only way
-    // to re-translate the UI is to re-create the graph. We carry the
-    // current diagram across the remount so switching languages does not wipe the canvas.
-    const diagram = exportReactodiaLayout();
-    this.renderGraph(diagram);
+    // to re-translate the UI is to re-create the graph.
+    this.renderGraph(true);
   }
 
   connectedCallback(): void {
-    this.renderGraph();
+    if (this.config) {
+      this.renderGraph();
+    }
   }
 
   disconnectedCallback(): void {
@@ -86,7 +86,7 @@ export class GraphwiseReactodia {
     );
   }
 
-  private renderGraph(initialDiagram?: SerializedDiagram): void {
+  private renderGraph(isReloading?: boolean): void {
     if (!this.currentRepository) {
       throw new Error('currentRepository is required');
     }
@@ -100,14 +100,14 @@ export class GraphwiseReactodia {
     }
 
     const props = {
-      initialDiagram,
+      isReload: isReloading,
       currentRepository: this.currentRepository,
       config: this.config,
       language: this.language,
       providerSettings: this.providerSettings,
     };
 
-    if (this.reactRoot && !initialDiagram) {
+    if (this.reactRoot && !isReloading) {
       void updateReactodia(props);
     } else {
       this.reactRoot = mountReactodia(this.hostElement, props);

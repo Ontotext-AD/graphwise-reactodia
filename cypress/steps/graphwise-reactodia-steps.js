@@ -59,4 +59,12 @@ export class GraphwiseReactodiaSteps {
   static switchToEnglish() {
     cy.getByTestId('set-language-en').click();
   }
+
+  static clearDiagramStorage() {
+    cy.getByTestId('clear-diagram-storage').click();
+  }
+
+  static getStoredDiagram() {
+    return cy.window().its('localStorage').invoke('getItem', 'diagram.state');
+  }
 }

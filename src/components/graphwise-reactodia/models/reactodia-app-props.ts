@@ -1,4 +1,4 @@
-import {SerializedDiagram, SparqlDataProviderSettings} from '@reactodia/workspace';
+import {SparqlDataProviderSettings} from '@reactodia/workspace';
 import {LanguageKey} from '../i18n/language-key';
 import {ReactodiaConfig} from './reactodia-config';
 
@@ -23,15 +23,16 @@ export interface ReactodiaAppProps {
    * and is also used as the initial graph-data language.
    */
   language: LanguageKey;
-  /**
-   * A previously exported diagram to restore on mount. Used to carry the user's current
-   * canvas across a remount (e.g. forced by a language change). When omitted, the canvas
-   * starts empty.
-   */
-  initialDiagram?: SerializedDiagram;
+
   /**
    * Query preset for the SPARQL data provider, owned and configured by the host. Falls back
    * to Reactodia's generic `OwlRdfsSettings` OWL/RDFS preset when omitted.
    */
   providerSettings?: SparqlDataProviderSettings;
+
+  /**
+   * When true, the host is remounting the component switch languages, so the workspace should not be seeded, if a seed is present.
+   * Rather, the current state should simply be reloaded.
+   */
+  isReload?: boolean;
 }

@@ -11,20 +11,23 @@
       "dom",
       "es2017"
     ],
-    "baseUrl": "./",
     "paths": {
       "@reactodia/workspace/layout-sync": [
-        "node_modules/@reactodia/workspace/dist/typings/layout-sync.d.ts"
+        "./node_modules/@reactodia/workspace/dist/typings/layout-sync.d.ts"
       ]
     },
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "module": "esnext",
     "target": "es2017",
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "jsx": "react",
     "jsxFactory": "h",
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "types": [
+      "jest",
+      "node"
+    ]
   },
   "include": [
     "src"
