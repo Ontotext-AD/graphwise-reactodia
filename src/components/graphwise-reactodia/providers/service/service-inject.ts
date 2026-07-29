@@ -12,6 +12,6 @@ import {Service} from './service';
  * const diagramStateService = service(DiagramStateService);
  * ```
  */
-export function service<T extends Service>(serviceClass: new (...args: never[]) => T): T {
+export function service<T>(serviceClass: Service<T>): T {
   return ServiceProvider.get(serviceClass);
 }

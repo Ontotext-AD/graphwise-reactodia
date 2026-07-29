@@ -10,7 +10,10 @@ export type DiagramChangeCallback = (diagram: SerializedDiagram) => void;
 /**
  * Service for diagram related operations and subscriptions
  */
-export class DiagramService implements Service {
+@Service
+export class DiagramService {
+  static readonly ID = 'DiagramService';
+
   private static readonly NOTIFY_DEBOUNCE_MS = 300;
   private static readonly HISTORY_CHANGED_EVENT = 'historyChanged';
 

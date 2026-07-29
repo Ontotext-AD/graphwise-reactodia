@@ -5,7 +5,7 @@ import {Service} from './service';
  * instance of each service, created on demand and cached here so every consumer shares it.
  */
 export class ServiceProvider {
-  private static readonly SERVICE_INSTANCES = new Map<string, Service>();
+  private static readonly SERVICE_INSTANCES = new Map<string, unknown>();
 
   /**
    * Returns the instance of the given service type, creating and caching it on first request.
@@ -14,10 +14,10 @@ export class ServiceProvider {
    * @returns The shared instance of the service.
    * @template T The type of the service to retrieve.
    */
-  static get<T extends Service>(type: {new (): T}): T {
-    if (!ServiceProvider.SERVICE_INSTANCES.has(type.name)) {
-      ServiceProvider.SERVICE_INSTANCES.set(type.name, new type());
+  static get<T>(type: Service<T>): T {
+    if (!ServiceProvider.SERVICE_INSTANCES.has(type.ID)) {
+      ServiceProvider.SERVICE_INSTANCES.set(type.ID, new type());
     }
-    return ServiceProvider.SERVICE_INSTANCES.get(type.name) as T;
+    return ServiceProvider.SERVICE_INSTANCES.get(type.ID) as T;
   }
 }
