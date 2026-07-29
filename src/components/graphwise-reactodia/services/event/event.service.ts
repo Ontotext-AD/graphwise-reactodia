@@ -7,7 +7,10 @@ import {WindowService} from '../window/window.service';
 /**
  * Service for event based operations
  */
-export class EventService implements Service {
+@Service
+export class EventService {
+  static readonly ID = 'EventService';
+
   /**
    * Subscribes to the host's "clear persisted diagram" command.
    *

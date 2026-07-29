@@ -6,7 +6,10 @@ import {WindowService} from '../window/window.service';
 /**
  * Service for local store-related diagram operations
  */
-export class DiagramStorageService implements Service {
+@Service
+export class DiagramStorageService {
+  static readonly ID = 'DiagramStorageService';
+
   private static readonly STORAGE_KEY = 'diagram.state';
 
   /**
