@@ -10,14 +10,14 @@ export class ServiceProvider {
   /**
    * Returns the instance of the given service type, creating and caching it on first request.
    *
-   * @param type The service type to retrieve.
+   * @param serviceClass The service type to retrieve.
    * @returns The shared instance of the service.
    * @template T The type of the service to retrieve.
    */
-  static get<T>(type: Service<T>): T {
-    if (!ServiceProvider.SERVICE_INSTANCES.has(type.ID)) {
-      ServiceProvider.SERVICE_INSTANCES.set(type.ID, new type());
+  static get<T>(serviceClass: Service<T>): T {
+    if (!ServiceProvider.SERVICE_INSTANCES.has(serviceClass.ID)) {
+      ServiceProvider.SERVICE_INSTANCES.set(serviceClass.ID, new serviceClass());
     }
-    return ServiceProvider.SERVICE_INSTANCES.get(type.ID) as T;
+    return ServiceProvider.SERVICE_INSTANCES.get(serviceClass.ID) as T;
   }
 }
