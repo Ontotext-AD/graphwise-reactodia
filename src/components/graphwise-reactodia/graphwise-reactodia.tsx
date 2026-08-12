@@ -4,6 +4,7 @@ import {SparqlDataProviderSettings} from '@reactodia/workspace';
 import {mountReactodia, unmountReactodia, updateReactodia} from './reactodia-app';
 import {LanguageKey} from './i18n/language-key';
 import {ReactodiaConfig} from './models/reactodia-config';
+import {resetColors} from './styles/type-style.resolver';
 
 /**
  * A web component that renders a graph with the Reactodia workspace.
@@ -52,6 +53,14 @@ export class GraphwiseReactodia {
    */
   @Prop() providerSettings?: SparqlDataProviderSettings;
 
+  /**
+   * The theme currently applied by the host (e.g. `light`, `dark`). The value itself is never read -
+   * the node colors are taken from the host's CSS custom properties - it only signals that those
+   * values have changed. The host owns the theme, including whether it follows the OS color scheme,
+   * so the change is passed in instead of being detected here.
+   */
+  @Prop() theme?: string;
+
   private reactRoot?: Root;
 
   @Watch('currentRepository')
@@ -64,6 +73,12 @@ export class GraphwiseReactodia {
   onLanguageChange(): void {
     // The translations are evaluated by the workspace at construction, so the only way
     // to re-translate the UI is to re-create the graph.
+    this.renderGraph(true);
+  }
+
+  @Watch('theme')
+  onThemeChange(): void {
+    resetColors();
     this.renderGraph(true);
   }
 
