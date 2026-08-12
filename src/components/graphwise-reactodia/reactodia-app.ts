@@ -21,6 +21,7 @@ import {DiagramService} from './services/diagram/diagram.service';
 import {DiagramStorageService} from './services/diagram-storage/diagram-storage.service';
 import {EventService} from './services/event/event.service';
 import {SubscriptionList} from './models/subscription-list';
+import {resolveTypeStyle} from './styles/type-style.resolver';
 
 /**
  * Reactodia ships English as its built-in default bundle, so English needs no override.
@@ -159,7 +160,7 @@ function ReactodiaApp(props: ReactodiaAppProps) {
     if (isReload) {
       // Simply reload without using the current state. This may happen when the user switches the language at runtime.
       // since there is no existing mechanism to re-translate the UI at runtime (not for the UI labels at least)
-      await model.importLayout({dataProvider, diagram: currentDiagram, signal});
+      await model.importLayout({dataProvider, diagram: currentDiagram, signal, validateLinks: true});
     } else if (config.seedIris?.length) {
       await seedIrisToCanvas(context, dataProvider, config.seedIris, signal);
     } else if (config.seedGraph?.length) {
@@ -167,7 +168,7 @@ function ReactodiaApp(props: ReactodiaAppProps) {
     } else {
       // Restore the previously saved layout when present, otherwise start empty. Either way this binds the
       // data provider (savedDiagram is undefined -> empty diagram), so the unified search/lookup works.
-      await model.importLayout({dataProvider, diagram: savedDiagram, signal});
+      await model.importLayout({dataProvider, diagram: savedDiagram, signal, validateLinks: true});
     }
   }, [language]);
 
@@ -187,7 +188,8 @@ function ReactodiaApp(props: ReactodiaAppProps) {
       ref: onMount,
       defaultLayout: blockingDefaultLayout,
       defaultLanguage: language,
-      translations: translationsForLanguage(language)
+      translations: translationsForLanguage(language),
+      typeStyleResolver: resolveTypeStyle
     } as never,
     createElement(DefaultWorkspace, {})
   );
