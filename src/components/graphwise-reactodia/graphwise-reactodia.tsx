@@ -1,9 +1,11 @@
-import {Component, Element, h, Host, Prop, Watch} from '@stencil/core';
+import {Component, h, Host, Prop, State, Watch} from '@stencil/core';
 import {Root} from 'react-dom/client';
 import {SparqlDataProviderSettings} from '@reactodia/workspace';
 import {mountReactodia, unmountReactodia, updateReactodia} from './reactodia-app';
 import {LanguageKey} from './i18n/language-key';
 import {ReactodiaConfig} from './models/reactodia-config';
+import {service} from './providers/service/service-inject';
+import {DiagramStorageService} from './services/diagram-storage/diagram-storage.service';
 import {resetColors} from './styles/type-style.resolver';
 
 /**
@@ -22,8 +24,6 @@ import {resetColors} from './styles/type-style.resolver';
   styleUrl: 'graphwise-reactodia.scss',
 })
 export class GraphwiseReactodia {
-  @Element() private readonly hostElement?: HTMLElement;
-
   /**
    * The active repository id. Appended to {@link queryFunction} as the request `url`;
    * changing it re-points the graph at the new repository (and resets the canvas),
@@ -51,7 +51,7 @@ export class GraphwiseReactodia {
    * the data provider falls back to Reactodia's generic OWL/RDFS preset. Changing it rebuilds
    * the data provider and resets the canvas.
    */
-  @Prop() providerSettings?: SparqlDataProviderSettings;
+  @Prop() providerSettings?: Partial<SparqlDataProviderSettings>;
 
   /**
    * The theme currently applied by the host (e.g. `light`, `dark`). The value itself is never read -
@@ -61,7 +61,22 @@ export class GraphwiseReactodia {
    */
   @Prop() theme?: string;
 
+  /**
+   * Runtime toggle for the data provider's `acceptBlankNodes` flag, for testing blank node
+   * support against a live endpoint. Internal, not part of the public API - in production the
+   * host sets `acceptBlankNodes` through the {@link providerSettings} prop instead.
+   *
+   * TEMPORARY. Removing the checkbox means removing, in this file: this field, the
+   * `blank-nodes-toggle` label in {@link render}, {@link onAcceptBlankNodesChange}, the
+   * `acceptBlankNodes` override handed to `mountReactodia`, and the {@link graphContainer} /
+   * {@link componentDidLoad} pair - the graph mounted straight into the host element before
+   * the toggle needed a sibling. Then `.blank-nodes-toggle` in the stylesheet, and
+   * `loadAcceptBlankNodes` / `saveAcceptBlankNodes` on {@link DiagramStorageService}.
+   */
+  @State() acceptBlankNodes = service(DiagramStorageService).loadAcceptBlankNodes();
+
   private reactRoot?: Root;
+  private graphContainer?: HTMLElement;
 
   @Watch('currentRepository')
   @Watch('providerSettings')
@@ -82,7 +97,8 @@ export class GraphwiseReactodia {
     this.renderGraph(true);
   }
 
-  connectedCallback(): void {
+  // The graph container is only available after the first render, so the initial mount happens here.
+  componentDidLoad(): void {
     if (this.config) {
       this.renderGraph();
     }
@@ -97,8 +113,31 @@ export class GraphwiseReactodia {
 
   render() {
     return (
-      <Host></Host>
+      <Host>
+        <label class="blank-nodes-toggle">
+          <input type="checkbox"
+                 data-test="accept-blank-nodes"
+                 checked={this.acceptBlankNodes}
+                 onChange={(event) => this.onAcceptBlankNodesChange(event)}/>
+          Accept blank nodes
+        </label>
+        <div class="reactodia-container" ref={(element) => this.graphContainer = element}></div>
+      </Host>
     );
+  }
+
+  /**
+   * The flag is read when the provider is constructed, so the toggle rebuilds the provider,
+   * which resets the canvas. That is the same path the host takes when it changes
+   * {@link providerSettings}.
+   *
+   * It is also persisted, so that a diagram restored from the local store is loaded by a
+   * provider which can still resolve the blank nodes it holds.
+   */
+  private onAcceptBlankNodesChange(event: Event): void {
+    this.acceptBlankNodes = (event.target as HTMLInputElement).checked;
+    service(DiagramStorageService).saveAcceptBlankNodes(this.acceptBlankNodes);
+    this.renderGraph();
   }
 
   private renderGraph(isReloading?: boolean): void {
@@ -110,7 +149,7 @@ export class GraphwiseReactodia {
       throw new Error('config.queryFunction is required');
     }
 
-    if (!this.hostElement) {
+    if (!this.graphContainer) {
       return;
     }
 
@@ -119,13 +158,14 @@ export class GraphwiseReactodia {
       currentRepository: this.currentRepository,
       config: this.config,
       language: this.language,
-      providerSettings: this.providerSettings,
+      // The toggle wins over the host setting, so it stays applied when the provider is rebuilt.
+      providerSettings: {...this.providerSettings, acceptBlankNodes: this.acceptBlankNodes},
     };
 
     if (this.reactRoot && !isReloading) {
       void updateReactodia(props);
     } else {
-      this.reactRoot = mountReactodia(this.hostElement, props);
+      this.reactRoot = mountReactodia(this.graphContainer, props);
     }
   }
 }

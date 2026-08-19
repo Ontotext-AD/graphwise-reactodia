@@ -78,4 +78,34 @@ describe('DiagramStorageService', () => {
     expect(() => diagramStorageService.clear()).not.toThrow();
     expect(diagramStorageService.load()).toBeUndefined();
   });
+
+  test('loadAcceptBlankNodes is false when nothing is stored', () => {
+    // When reading the blank node toggle from an empty store
+    // Then it is off
+    expect(diagramStorageService.loadAcceptBlankNodes()).toBe(false);
+  });
+
+  test('saveAcceptBlankNodes round-trips through loadAcceptBlankNodes', () => {
+    // When the toggle is turned on
+    diagramStorageService.saveAcceptBlankNodes(true);
+    // Then it reads back as on
+    expect(diagramStorageService.loadAcceptBlankNodes()).toBe(true);
+
+    // When it is turned back off
+    diagramStorageService.saveAcceptBlankNodes(false);
+    // Then it reads back as off
+    expect(diagramStorageService.loadAcceptBlankNodes()).toBe(false);
+  });
+
+  test('the blank node toggle is not affected by clearing the diagram', () => {
+    // Given the toggle is on and a diagram is saved
+    diagramStorageService.saveAcceptBlankNodes(true);
+    diagramStorageService.save(diagram);
+
+    // When the persisted diagram is removed
+    diagramStorageService.clear();
+
+    // Then the toggle survives, as it is a data provider setting and not diagram state
+    expect(diagramStorageService.loadAcceptBlankNodes()).toBe(true);
+  });
 });

@@ -38,7 +38,7 @@ export namespace Components {
         /**
           * Query preset for the SPARQL data provider, owned and configured by the host. A DOM property (an object, not an attribute) passed in from outside the wrapper. When omitted, the data provider falls back to Reactodia's generic OWL/RDFS preset. Changing it rebuilds the data provider and resets the canvas.
          */
-        "providerSettings"?: SparqlDataProviderSettings;
+        "providerSettings"?: Partial<SparqlDataProviderSettings>;
         /**
           * The theme currently applied by the host (e.g. `light`, `dark`). The value itself is never read - the node colors are taken from the host's CSS custom properties - it only signals that those values have changed. The host owns the theme, including whether it follows the OS color scheme, so the change is passed in instead of being detected here.
          */
@@ -92,7 +92,7 @@ declare namespace LocalJSX {
         /**
           * Query preset for the SPARQL data provider, owned and configured by the host. A DOM property (an object, not an attribute) passed in from outside the wrapper. When omitted, the data provider falls back to Reactodia's generic OWL/RDFS preset. Changing it rebuilds the data provider and resets the canvas.
          */
-        "providerSettings"?: SparqlDataProviderSettings;
+        "providerSettings"?: Partial<SparqlDataProviderSettings>;
         /**
           * The theme currently applied by the host (e.g. `light`, `dark`). The value itself is never read - the node colors are taken from the host's CSS custom properties - it only signals that those values have changed. The host owns the theme, including whether it follows the OS color scheme, so the change is passed in instead of being detected here.
          */
