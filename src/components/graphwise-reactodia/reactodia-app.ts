@@ -4,7 +4,7 @@ import {
   DataDiagramModel,
   DataProvider,
   DefaultWorkspace,
-  OwlRdfsSettings,
+  OwlStatsSettings,
   SerializedDiagram,
   SparqlDataProvider,
   useLoadedWorkspace,
@@ -43,6 +43,12 @@ function translationsForLanguage(language: LanguageKey): readonly object[] {
 let workspaceContext: WorkspaceContext | null = null;
 
 /**
+ * The data provider backing the current diagram, kept so runtime flags can be flipped on it
+ * in place. Replaced whenever the provider is rebuilt.
+ */
+let activeDataProvider: SparqlDataProvider | null = null;
+
+/**
  * Active listeners that persist diagram edits to local storage. Populated when the workspace
  * mounts and released in {@link unmountReactodia}, so persistence follows the same lifecycle as
  * the React root.
@@ -52,15 +58,25 @@ const subscriptions = new SubscriptionList();
 /**
  * Builds a Reactodia {@link SparqlDataProvider} for the given endpoint using the supplied
  * query preset. The host owns the query configuration and passes it in via props; when none
- * is provided we fall back to Reactodia's generic {@link OwlRdfsSettings} OWL/RDFS preset.
+ * is provided we fall back to Reactodia's generic {@link OwlStatsSettings} OWL/RDFS preset.
  */
 function createDataProvider(props: ReactodiaAppProps): SparqlDataProvider {
   const {currentRepository, config, providerSettings} = props;
-  return new SparqlDataProvider({
+  activeDataProvider = new SparqlDataProvider({
     endpointUrl: currentRepository,
     queryMethod: 'POST',
     queryFunction: config.queryFunction
-  }, providerSettings);
+  }, {...OwlStatsSettings, ...providerSettings});
+  return activeDataProvider;
+}
+
+/**
+ * Flips the `acceptBlankNodes` flag on the live data provider. The flag is read while a query
+ * is being built, so this applies to every subsequent request without recreating the provider
+ * and without resetting the canvas.
+ */
+export function setAcceptBlankNodes(accept: boolean): void {
+  activeDataProvider?.setAcceptBlankNodes(accept);
 }
 
 /**
