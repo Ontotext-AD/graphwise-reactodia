@@ -28,7 +28,7 @@ export interface ReactodiaAppProps {
    * Query preset for the SPARQL data provider, owned and configured by the host. Falls back
    * to Reactodia's generic `OwlRdfsSettings` OWL/RDFS preset when omitted.
    */
-  providerSettings?: SparqlDataProviderSettings;
+  providerSettings?: Partial<SparqlDataProviderSettings>;
 
   /**
    * When true, the host is remounting the component switch languages, so the workspace should not be seeded, if a seed is present.
