@@ -1,4 +1,4 @@
-import type {DataDiagramModel, SerializedDiagram} from '@reactodia/workspace';
+import type {DataDiagramModel, DataProvider, SerializedDiagram} from '@reactodia/workspace';
 import {DiagramService} from './diagram.service';
 
 const HISTORY_CHANGED = 'historyChanged';
@@ -51,6 +51,39 @@ describe('DiagramService', () => {
     jest.clearAllTimers();
     jest.useRealTimers();
     jest.clearAllMocks();
+  });
+
+  test('importDiagram should import the layout with the data provider and validate its links', async () => {
+    // Given a model and a data provider
+    const importLayout = jest.fn().mockResolvedValue(undefined);
+    const setSelection = jest.fn();
+    const model = {importLayout, setSelection} as unknown as DataDiagramModel;
+    const dataProvider = {} as DataProvider;
+    const signal = new AbortController().signal;
+
+    // When a diagram is imported
+    await service.importDiagram(model, dataProvider, layout, signal);
+
+    // Then the layout is imported through the model with link validation
+    expect(importLayout).toHaveBeenCalledWith({dataProvider, diagram: layout, signal, validateLinks: true});
+  });
+
+  test('importDiagram should clear the selection before replacing the diagram content', async () => {
+    // Given a model that records the order of the calls it receives
+    const calls: string[] = [];
+    const importLayout = jest.fn().mockImplementation(() => {
+      calls.push('importLayout');
+      return Promise.resolve();
+    });
+    const setSelection = jest.fn().mockImplementation(() => calls.push('setSelection'));
+    const model = {importLayout, setSelection} as unknown as DataDiagramModel;
+
+    // When a diagram is imported
+    await service.importDiagram(model, {} as DataProvider, layout);
+
+    // Then the selection is emptied first, so the selection widgets stop painting the discarded cells
+    expect(setSelection).toHaveBeenCalledWith([]);
+    expect(calls).toEqual(['setSelection', 'importLayout']);
   });
 
   test('should call the callback with the exported layout once the debounce elapses', () => {

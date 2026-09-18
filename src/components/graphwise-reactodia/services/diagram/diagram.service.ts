@@ -1,4 +1,4 @@
-import type {DataDiagramModel, SerializedDiagram} from '@reactodia/workspace';
+import type {DataDiagramModel, DataProvider, SerializedDiagram} from '@reactodia/workspace';
 import {Service} from '../../providers/service/service';
 import {Subscription} from '../../models/subscription';
 
@@ -16,6 +16,21 @@ export class DiagramService {
 
   private static readonly NOTIFY_DEBOUNCE_MS = 300;
   private static readonly HISTORY_CHANGED_EVENT = 'historyChanged';
+
+  /**
+   * Replaces the diagram content with the given serialization. Element data is requested from the data provider and
+   * the links between the imported elements are validated against it.
+   *
+   * @param model The diagram model to import into.
+   * @param dataProvider The data provider to bind to the diagram.
+   * @param diagram The serialization to import. When `undefined`, the diagram is cleared.
+   * @param signal Optional signal to abort the import.
+   */
+  importDiagram(model: DataDiagramModel, dataProvider: DataProvider, diagram: SerializedDiagram | undefined, signal?: AbortSignal): Promise<void> {
+    // selection is not cleared on import, so we clear it manually to avoid painting the previous selection
+    model.setSelection([]);
+    return model.importLayout({dataProvider, diagram, signal, validateLinks: true});
+  }
 
   /**
    * Subscribes to diagram changes. On every debounced change the current layout is

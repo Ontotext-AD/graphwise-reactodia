@@ -1,0 +1,23 @@
+{
+  "@context": "https://ontodia.org/context/v1.json",
+  "@type": "Diagram",
+  "layoutData": {
+    "@type": "Layout",
+    "elements": [
+      {
+        "@type": "Element",
+        "@id": "urn:reactodia:element:alice",
+        "iri": "http://example.com/alice",
+        "position": {"x": 100, "y": 100}
+      },
+      {
+        "@type": "Element",
+        "@id": "urn:reactodia:element:bob",
+        "iri": "http://example.com/bob",
+        "position": {"x": 400, "y": 100}
+      }
+    ],
+    "links": []
+  },
+  "linkTypeOptions": []
+}
