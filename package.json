@@ -2,7 +2,7 @@
   "name": "graphwise-reactodia",
   "version": "0.0.1-TR10",
   "description": "Graphwise wrapper around the Reactodia graph explorer.",
-  "license": "Apache-2.0",
+  "license": "LGPL-3.0-or-later",
   "author": "Ontotext AD",
   "main": "dist/index.cjs.js",
   "module": "dist/esm/index.js",
@@ -21,7 +21,10 @@
   },
   "files": [
     "dist/",
-    "loader/"
+    "loader/",
+    "COPYING",
+    "COPYING.LESSER",
+    "NOTICE"
   ],
   "scripts": {
     "reactodia:install": "cd reactodia-workspace && npm ci",

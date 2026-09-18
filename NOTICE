@@ -1,0 +1,41 @@
+graphwise-reactodia -- Graphwise wrapper around the Reactodia graph explorer.
+
+Copyright (C) 2026 Ontotext AD
+
+This library is free software: you can redistribute it and/or modify it
+under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation, either version 3 of the License, or (at your
+option) any later version.
+
+This library is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
+License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with this library (COPYING.LESSER), together with the GNU General
+Public License it supplements (COPYING). If not, see
+<https://www.gnu.org/licenses/>.
+
+-------------------------------------------------------------------------------
+
+Reactodia Workspace
+
+The published bundle (dist/) incorporates Reactodia Workspace, built from
+the Ontotext AD fork:
+
+    https://github.com/Ontotext-AD/reactodia-workspace-fork
+
+The corresponding source for a given release is tag v<version> of
+
+    https://github.com/Ontotext-AD/graphwise-reactodia
+
+together with the reactodia-workspace submodule commit it pins in the fork.
+
+Copyright (C) 2026 Alexey Morozov (https://github.com/AlexeyMz)
+Copyright (C) 2019 metaphacts GmbH.
+Copyright (C) 2026 Ontotext AD. Modified from reactodia-workspace v0.35.0.
+
+Reactodia Workspace is licensed under the GNU Lesser General Public License
+version 2.1 or (at your option) any later version. It is incorporated here
+under version 3 of that license, as permitted by that option.
