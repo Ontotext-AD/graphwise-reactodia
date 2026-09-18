@@ -67,4 +67,44 @@ export class GraphwiseReactodiaSteps {
   static getStoredDiagram() {
     return cy.window().its('localStorage').invoke('getItem', 'diagram.state');
   }
+
+  /**
+   * Retries until the diagram persisted to local storage has the given number of elements (the save is debounced).
+   */
+  static storedDiagramShouldHaveElements(count) {
+    return this.getStoredDiagram().should((raw) => {
+      expect(raw).to.not.be.null;
+      expect(JSON.parse(raw).layoutData.elements).to.have.length(count);
+    });
+  }
+
+  static openMainMenu() {
+    this.getComponent().find('.reactodia-toolbar__menu .reactodia-dropdown-menu__toggle').click();
+  }
+
+  static getDownloadDiagramAction() {
+    return this.getComponent().find('.reactodia-toolbar__menu .reactodia-toolbar-action__save');
+  }
+
+  static getUploadDiagramAction() {
+    return this.getComponent().find('.reactodia-toolbar__menu .reactodia-toolbar-action__open');
+  }
+
+  static downloadDiagram() {
+    this.openMainMenu();
+    this.getDownloadDiagramAction().click();
+  }
+
+  /**
+   * Uploads a file from `cypress/fixtures` through the hidden file input of the upload action.
+   */
+  static uploadDiagram(fixture) {
+    this.openMainMenu();
+    this.getComponent().find('.reactodia-toolbar__menu .reactodia-toolbar-action__open-input')
+      .selectFile(`cypress/fixtures/${fixture}`, {force: true});
+  }
+
+  static readDownloadedDiagram(fileName) {
+    return cy.readFile(`${Cypress.config('downloadsFolder')}/${fileName}`);
+  }
 }

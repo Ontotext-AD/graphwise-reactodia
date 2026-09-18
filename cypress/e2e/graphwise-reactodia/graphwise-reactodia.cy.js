@@ -132,4 +132,72 @@ describe('graphwise-reactodia', () => {
     GraphwiseReactodiaSteps.getElements().should('have.length', 2);
     GraphwiseReactodiaSteps.getLinks().should('have.length', 1);
   });
+
+  it('Should download the current diagram, even right after it is restored', () => {
+    // Given a seeded diagram, which is persisted to local storage
+    GraphwiseReactodiaSteps.setSeed();
+    GraphwiseReactodiaSteps.provideRequiredProps();
+    GraphwiseReactodiaSteps.storedDiagramShouldHaveElements(2);
+    // And the page is refreshed, so the diagram is restored and there is nothing to undo
+    GraphwiseReactodiaSteps.visit();
+    GraphwiseReactodiaSteps.provideRequiredProps();
+    GraphwiseReactodiaSteps.getElements().should('have.length', 2);
+    // And the time is fixed, so the downloaded file name is known
+    cy.clock(Date.UTC(2026, 8, 17, 10, 15, 30), ['Date']);
+
+    // When the main menu is opened
+    GraphwiseReactodiaSteps.openMainMenu();
+
+    // Then the download is enabled
+    GraphwiseReactodiaSteps.getDownloadDiagramAction().should('be.visible').and('not.be.disabled');
+
+    // When the diagram is downloaded
+    GraphwiseReactodiaSteps.getDownloadDiagramAction().click();
+
+    // Then the file holds the serialized diagram with both elements
+    GraphwiseReactodiaSteps.readDownloadedDiagram('diagram-20260917T101530.json').then((diagram) => {
+      expect(diagram['@type']).to.equal('Diagram');
+      expect(diagram.layoutData.elements.map((element) => element.iri)).to.have.members([
+        'http://example.com/alice',
+        'http://example.com/bob'
+      ]);
+    });
+  });
+
+  it('Should replace the diagram with an uploaded one and persist it', () => {
+    // Given an empty workspace
+    GraphwiseReactodiaSteps.provideRequiredProps();
+    GraphwiseReactodiaSteps.getCanvas().should('exist');
+    GraphwiseReactodiaSteps.getElements().should('not.exist');
+
+    // When a diagram file with two elements is uploaded
+    GraphwiseReactodiaSteps.uploadDiagram('valid-diagram.json');
+
+    // Then both elements are placed on the canvas
+    GraphwiseReactodiaSteps.getElements().should('have.length', 2);
+    // And the uploaded diagram is persisted to local storage
+    GraphwiseReactodiaSteps.storedDiagramShouldHaveElements(2);
+
+    // When the page is refreshed
+    GraphwiseReactodiaSteps.visit();
+    GraphwiseReactodiaSteps.provideRequiredProps();
+
+    // Then the uploaded diagram is restored
+    GraphwiseReactodiaSteps.getElements().should('have.length', 2);
+  });
+
+  it('Should keep the current diagram when the uploaded file is not a diagram', () => {
+    // Given a seeded diagram, which is persisted to local storage
+    GraphwiseReactodiaSteps.setSeed();
+    GraphwiseReactodiaSteps.provideRequiredProps();
+    GraphwiseReactodiaSteps.storedDiagramShouldHaveElements(2);
+
+    // When a JSON file, which is not a diagram, is uploaded
+    GraphwiseReactodiaSteps.uploadDiagram('invalid-diagram.json');
+
+    // Then the canvas keeps its elements
+    GraphwiseReactodiaSteps.getElements().should('have.length', 2);
+    // And the persisted diagram is unchanged
+    GraphwiseReactodiaSteps.storedDiagramShouldHaveElements(2);
+  });
 });

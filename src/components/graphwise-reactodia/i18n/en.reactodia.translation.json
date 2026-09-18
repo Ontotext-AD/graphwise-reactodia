@@ -1,0 +1,8 @@
+{
+  "graphwise_toolbar_action": {
+    "download_diagram.label": "Export to JSON",
+    "download_diagram.title": "Export the diagram to a JSON file",
+    "upload_diagram.label": "Import from JSON",
+    "upload_diagram.title": "Replace the diagram with one from a JSON file"
+  }
+}
