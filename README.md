@@ -114,3 +114,15 @@ OR run tests in a container
 ```bash
 docker compose up
 ```
+
+## License
+
+Copyright (C) 2026 Ontotext AD.
+
+Licensed under the GNU Lesser General Public License v3.0 or later (`LGPL-3.0-or-later`); see
+[`COPYING.LESSER`](COPYING.LESSER) and [`COPYING`](COPYING).
+
+The published bundle includes [Reactodia Workspace](https://github.com/reactodia/reactodia-workspace)
+(`LGPL-2.1-or-later`), built from our [fork](https://github.com/Ontotext-AD/reactodia-workspace-fork) and used
+under LGPL-3.0 through its "or later" option. The source for a release is tag `v<version>` of this repo
+together with the fork commit its `reactodia-workspace` submodule pins. See [`NOTICE`](NOTICE).
