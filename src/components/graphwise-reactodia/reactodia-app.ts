@@ -4,7 +4,6 @@ import {
   DataDiagramModel,
   DataProvider,
   DefaultWorkspace,
-  OwlRdfsSettings,
   SerializedDiagram,
   SparqlDataProvider,
   useLoadedWorkspace,
@@ -52,8 +51,7 @@ const subscriptions = new SubscriptionList();
 
 /**
  * Builds a Reactodia {@link SparqlDataProvider} for the given endpoint using the supplied
- * query preset. The host owns the query configuration and passes it in via props; when none
- * is provided we fall back to Reactodia's generic {@link OwlRdfsSettings} OWL/RDFS preset.
+ * query preset. The host owns the query configuration and always passes it in via props.
  */
 function createDataProvider(props: ReactodiaAppProps): SparqlDataProvider {
   const {currentRepository, config, providerSettings} = props;
@@ -160,8 +158,9 @@ function ReactodiaApp(props: ReactodiaAppProps) {
     const diagramService = service(DiagramService);
 
     if (isReload) {
-      // Simply reload without using the current state. This may happen when the user switches the language at runtime.
-      // since there is no existing mechanism to re-translate the UI at runtime (not for the UI labels at least)
+      // Reload the diagram that is currently on the canvas. This may happen when the host changes the provider
+      // settings, or when the user switches the language at runtime, since there is no existing mechanism to
+      // re-translate the UI at runtime (not for the UI labels at least)
       await diagramService.importDiagram(model, dataProvider, currentDiagram, signal);
     } else if (config.seedIris?.length) {
       await seedIrisToCanvas(context, dataProvider, config.seedIris, signal);
@@ -211,8 +210,9 @@ export function mountReactodia(container: HTMLElement, props: ReactodiaAppProps)
 }
 
 /**
- * Re-points the diagram at a new SPARQL endpoint or query preset by recreating it with a
- * fresh data provider. The canvas is reset to empty, matching the initial mount.
+ * Re-points the diagram at a new SPARQL endpoint by recreating it with a fresh data provider.
+ * The canvas is reset to empty, matching the initial mount, since the data of another repository
+ * has nothing to do with the current graph.
  */
 export async function updateReactodia(props: ReactodiaAppProps): Promise<void> {
   if (!workspaceContext) {

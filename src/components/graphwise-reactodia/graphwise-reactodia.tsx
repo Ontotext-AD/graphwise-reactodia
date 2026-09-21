@@ -47,9 +47,9 @@ export class GraphwiseReactodia {
 
   /**
    * Query preset for the SPARQL data provider, owned and configured by the host. A DOM
-   * property (an object, not an attribute) passed in from outside the wrapper. When omitted,
-   * the data provider falls back to Reactodia's generic OWL/RDFS preset. Changing it rebuilds
-   * the data provider and resets the canvas.
+   * property (an object, not an attribute) passed in from outside the wrapper. Required: the
+   * wrapper has no default preset and throws when it is missing. Changing it rebuilds the data
+   * provider and reloads the graph with it, keeping the current diagram.
    */
   @Prop() providerSettings?: SparqlDataProviderSettings;
 
@@ -64,15 +64,16 @@ export class GraphwiseReactodia {
   private reactRoot?: Root;
 
   @Watch('currentRepository')
-  @Watch('providerSettings')
-  onProviderSettingsChange(): void {
+  onCurrentRepositoryChange(): void {
     this.renderGraph();
   }
 
   @Watch('language')
-  onLanguageChange(): void {
+  @Watch('providerSettings')
+  onLanguageOrSettingsChange(): void {
     // The translations are evaluated by the workspace at construction, so the only way
     // to re-translate the UI is to re-create the graph.
+    // Setting changes should keep the current diagram despite possible
     this.renderGraph(true);
   }
 
@@ -108,6 +109,10 @@ export class GraphwiseReactodia {
 
     if (!this.config?.queryFunction) {
       throw new Error('config.queryFunction is required');
+    }
+
+    if (!this.providerSettings) {
+      throw new Error('providerSettings is required');
     }
 
     if (!this.hostElement) {
