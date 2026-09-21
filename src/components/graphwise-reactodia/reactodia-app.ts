@@ -4,7 +4,6 @@ import {
   DataDiagramModel,
   DataProvider,
   DefaultWorkspace,
-  OwlRdfsSettings,
   SerializedDiagram,
   SparqlDataProvider,
   useLoadedWorkspace,
@@ -52,8 +51,7 @@ const subscriptions = new SubscriptionList();
 
 /**
  * Builds a Reactodia {@link SparqlDataProvider} for the given endpoint using the supplied
- * query preset. The host owns the query configuration and passes it in via props; when none
- * is provided we fall back to Reactodia's generic {@link OwlRdfsSettings} OWL/RDFS preset.
+ * query preset. The host owns the query configuration and always passes it in via props.
  */
 function createDataProvider(props: ReactodiaAppProps): SparqlDataProvider {
   const {currentRepository, config, providerSettings} = props;

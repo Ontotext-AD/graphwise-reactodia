@@ -47,9 +47,9 @@ export class GraphwiseReactodia {
 
   /**
    * Query preset for the SPARQL data provider, owned and configured by the host. A DOM
-   * property (an object, not an attribute) passed in from outside the wrapper. When omitted,
-   * the data provider falls back to Reactodia's generic OWL/RDFS preset. Changing it rebuilds
-   * the data provider and resets the canvas.
+   * property (an object, not an attribute) passed in from outside the wrapper. Required: the
+   * wrapper has no default preset and throws when it is missing. Changing it rebuilds the data
+   * provider and resets the canvas.
    */
   @Prop() providerSettings?: SparqlDataProviderSettings;
 
@@ -108,6 +108,10 @@ export class GraphwiseReactodia {
 
     if (!this.config?.queryFunction) {
       throw new Error('config.queryFunction is required');
+    }
+
+    if (!this.providerSettings) {
+      throw new Error('providerSettings is required');
     }
 
     if (!this.hostElement) {
