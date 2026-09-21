@@ -27,6 +27,12 @@ function setQueryFunction() {
   reactodia.config = {...reactodia.config, queryFunction: stubQueryFunction};
 }
 
+// The wrapper has no default preset, so the host always passes one. The demo uses Reactodia's generic
+// OWL/RDFS preset, copied into `owl-rdfs-settings.js`.
+function setProviderSettings() {
+  reactodia.providerSettings = OWL_RDFS_SETTINGS;
+}
+
 function setSeed() {
   reactodia.config = {...reactodia.config, seedIris: SEED_NODES};
 }

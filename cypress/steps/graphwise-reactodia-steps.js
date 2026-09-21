@@ -31,12 +31,17 @@ export class GraphwiseReactodiaSteps {
     cy.getByTestId('set-query-function').click();
   }
 
+  static setProviderSettings() {
+    cy.getByTestId('set-provider-settings').click();
+  }
+
   static setRepository() {
     cy.getByTestId('set-repository').click();
   }
 
   static provideRequiredProps() {
     this.setQueryFunction();
+    this.setProviderSettings();
     this.setRepository();
   }
 

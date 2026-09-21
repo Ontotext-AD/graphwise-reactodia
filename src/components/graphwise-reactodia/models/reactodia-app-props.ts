@@ -25,13 +25,13 @@ export interface ReactodiaAppProps {
   language: LanguageKey;
 
   /**
-   * Query preset for the SPARQL data provider, owned and configured by the host. Falls back
-   * to Reactodia's generic `OwlRdfsSettings` OWL/RDFS preset when omitted.
+   * Query preset for the SPARQL data provider, owned and configured by the host.
    */
-  providerSettings?: SparqlDataProviderSettings;
+  providerSettings: SparqlDataProviderSettings;
 
   /**
-   * When true, the host is remounting the component switch languages, so the workspace should not be seeded, if a seed is present.
+   * When true, the host is remounting the component to switch languages or to apply new provider
+   * settings, so the workspace should not be seeded, if a seed is present.
    * Rather, the current state should simply be reloaded.
    */
   isReload?: boolean;
