@@ -2,7 +2,10 @@ version: '3.4'
 
 services:
   graphwise-reactodia:
-    image: node:22-alpine
+    # Must stay a glibc image. The bind mount below reuses the `node_modules` installed on the host,
+    # and `sass-embedded` only ever installs the binary for the host libc; under musl it falls back to
+    # the pure-JS `sass` CLI, which cannot speak the embedded protocol, and `vite build` hangs forever.
+    image: node:22
     working_dir: /app
     user: "${UID}:${GID}"
     ports:
