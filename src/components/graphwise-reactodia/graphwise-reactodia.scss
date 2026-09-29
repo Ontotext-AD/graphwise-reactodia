@@ -1,4 +1,4 @@
-@use 'styles/theme';
+@use 'styles/graphwise-reactodia-theme';
 
 graphwise-reactodia {
   display: block;
@@ -13,5 +13,11 @@ graphwise-reactodia {
 
   .reactodia-selection-action__link {
     display: none;
+  }
+
+  .reactodia-standard-element__thumbnail:not(:has(img)) {
+    background: var(--reactodia-element-style-color);
+    border-radius: 50%;
+    color: var(--_graphwise-reactodia-type-color-contrast);
   }
 }
