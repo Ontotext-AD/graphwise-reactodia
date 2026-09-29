@@ -8,4 +8,10 @@ graphwise-reactodia {
     width: 100%;
     height: 100%;
   }
+
+  .reactodia-standard-element__thumbnail:not(:has(img)) {
+    background: var(--reactodia-element-style-color);
+    border-radius: 50%;
+    color: var(--gw-foreground-visual-diagram-categorical-contrast);
+  }
 }
