@@ -16,6 +16,9 @@
 $type-color-count: 20;
 
 graphwise-reactodia {
+  // Node styles
+  // ------------------------------------------------------------
+
   // Type palette. Each node type takes the next slot in the order the types are first seen, wrapping
   // around past the last one. No defaults: an empty slot leaves Reactodia's own hash-based colors.
   @for $i from 1 through $type-color-count {
@@ -24,4 +27,7 @@ graphwise-reactodia {
     /** @prop --graphwise-reactodia-type-color-#{$slot}: Color slot #{$i} of #{$type-color-count} for node types */
     --_graphwise-reactodia-type-color-#{$slot}: var(--graphwise-reactodia-type-color-#{$slot});
   }
+
+  /** @prop --graphwise-reactodia-type-color-contrast: Contrast color for categorical node styles (the letter inside the circle) */
+  --_graphwise-reactodia-type-color-contrast: var(--graphwise-reactodia-type-color-contrast, #fff);
 }
