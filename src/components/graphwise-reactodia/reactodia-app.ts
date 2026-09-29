@@ -193,7 +193,11 @@ function ReactodiaApp(props: ReactodiaAppProps) {
       translations: translationsForLanguage(language),
       typeStyleResolver: resolveTypeStyle
     } as never,
-    createElement(DefaultWorkspace, {menu: createElement(GraphwiseMenu)})
+    createElement(DefaultWorkspace, {
+      menu: createElement(GraphwiseMenu),
+      // place Undo/redo/layout actions in top right corner.
+      actionsToolbar: {dock: 'ne'}
+    })
   );
 }
 
