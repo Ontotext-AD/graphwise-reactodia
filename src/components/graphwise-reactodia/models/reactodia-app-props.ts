@@ -30,7 +30,8 @@ export interface ReactodiaAppProps {
   providerSettings: SparqlDataProviderSettings;
 
   /**
-   * When true, the host is remounting the component switch languages, so the workspace should not be seeded, if a seed is present.
+   * When true, the host is remounting the component to switch languages or to apply new provider
+   * settings, so the workspace should not be seeded, if a seed is present.
    * Rather, the current state should simply be reloaded.
    */
   isReload?: boolean;

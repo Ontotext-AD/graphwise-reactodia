@@ -36,7 +36,7 @@ export namespace Components {
          */
         "language": LanguageKey;
         /**
-          * Query preset for the SPARQL data provider, owned and configured by the host. A DOM property (an object, not an attribute) passed in from outside the wrapper. Required: the wrapper has no default preset and throws when it is missing. Changing it rebuilds the data provider and resets the canvas.
+          * Query preset for the SPARQL data provider, owned and configured by the host. A DOM property (an object, not an attribute) passed in from outside the wrapper. Required: the wrapper has no default preset and throws when it is missing. Changing it rebuilds the data provider and reloads the graph with it, keeping the current diagram.
          */
         "providerSettings"?: SparqlDataProviderSettings;
         /**
@@ -90,7 +90,7 @@ declare namespace LocalJSX {
          */
         "language"?: LanguageKey;
         /**
-          * Query preset for the SPARQL data provider, owned and configured by the host. A DOM property (an object, not an attribute) passed in from outside the wrapper. Required: the wrapper has no default preset and throws when it is missing. Changing it rebuilds the data provider and resets the canvas.
+          * Query preset for the SPARQL data provider, owned and configured by the host. A DOM property (an object, not an attribute) passed in from outside the wrapper. Required: the wrapper has no default preset and throws when it is missing. Changing it rebuilds the data provider and reloads the graph with it, keeping the current diagram.
          */
         "providerSettings"?: SparqlDataProviderSettings;
         /**
