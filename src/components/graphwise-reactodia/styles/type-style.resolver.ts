@@ -1,35 +1,35 @@
 import {TypeStyle, TypeStyleResolver} from '@reactodia/workspace';
 
-const NODE_COLOR_VARIABLES = [
-  '--gw-foreground-visual-diagram-categorical-01',
-  '--gw-foreground-visual-diagram-categorical-02',
-  '--gw-foreground-visual-diagram-categorical-03',
-  '--gw-foreground-visual-diagram-categorical-04',
-  '--gw-foreground-visual-diagram-categorical-05',
-  '--gw-foreground-visual-diagram-categorical-06',
-  '--gw-foreground-visual-diagram-categorical-07',
-  '--gw-foreground-visual-diagram-categorical-08',
-  '--gw-foreground-visual-diagram-categorical-09',
-  '--gw-foreground-visual-diagram-categorical-10',
-  '--gw-foreground-visual-diagram-categorical-11',
-  '--gw-foreground-visual-diagram-categorical-12',
-  '--gw-foreground-visual-diagram-categorical-13',
-  '--gw-foreground-visual-diagram-categorical-14',
-  '--gw-foreground-visual-diagram-categorical-15',
-  '--gw-foreground-visual-diagram-categorical-16',
-  '--gw-foreground-visual-diagram-categorical-17',
-  '--gw-foreground-visual-diagram-categorical-18',
-  '--gw-foreground-visual-diagram-categorical-19',
-  '--gw-foreground-visual-diagram-categorical-20'
-];
-
 /**
  * Color slot assigned to each type, in the order the types are first seen.
  */
 const typeToIndex = new Map<string, number>();
 
-function getColor(variable: string) {
-  return getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
+/**
+ * Returns the internal property of the given palette slot, numbered from 1 and padded to two digits as in `_theme.scss`.
+ */
+function getTypeColorProperty(slot: number): string {
+  return `--_graphwise-reactodia-type-color-${String(slot).padStart(2, '0')}`;
+}
+
+/**
+ * Reads the type palette of the Theme API: the internal properties `_theme.scss` resolves from the ones
+ * the host declares, in slot order up to the first empty one.
+ */
+function getPalette(): string[] {
+  const host = document.querySelector('graphwise-reactodia');
+  if (!host) {
+    return [];
+  }
+
+  const style = getComputedStyle(host);
+  const palette: string[] = [];
+  let color = style.getPropertyValue(getTypeColorProperty(1)).trim();
+  while (color) {
+    palette.push(color);
+    color = style.getPropertyValue(getTypeColorProperty(palette.length + 1)).trim();
+  }
+  return palette;
 }
 
 /**
@@ -52,8 +52,8 @@ export const resolveTypeStyle: TypeStyleResolver = (types: readonly string[]): T
     typeToIndex.set(type, index);
   }
 
-  const color = getColor(NODE_COLOR_VARIABLES[index % NODE_COLOR_VARIABLES.length]);
-  return color ? {color} : undefined;
+  const colors = getPalette();
+  return colors.length ? {color: colors[index % colors.length]} : undefined;
 };
 
 export const resetColors = () => {
