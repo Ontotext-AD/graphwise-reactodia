@@ -51,8 +51,10 @@ export class DiagramService {
         clearTimeout(notifyTimer);
       }
       notifyTimer = setTimeout(() => {
+        if (notifyTimer) {
+          onChangeCallback(model.exportLayout());
+        }
         notifyTimer = undefined;
-        onChangeCallback(model.exportLayout());
       }, DiagramService.NOTIFY_DEBOUNCE_MS);
     };
 
@@ -62,6 +64,7 @@ export class DiagramService {
       model.history.events.off(DiagramService.HISTORY_CHANGED_EVENT, onHistoryChange);
       if (notifyTimer) {
         clearTimeout(notifyTimer);
+        notifyTimer = undefined;
       }
     };
   }
