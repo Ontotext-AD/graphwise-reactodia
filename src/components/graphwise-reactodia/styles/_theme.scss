@@ -1,0 +1,27 @@
+// The Theme API: CSS custom properties the wrapper reads but never declares. A host themes the wrapper
+// by declaring them on the `graphwise-reactodia` element, and changes the `theme` prop when their values change.
+//
+// Naming: `--graphwise-reactodia-<family>-<item>`. Each one is documented with `@prop` and resolved
+// right below it into an internal `--_graphwise-reactodia-<family>-<item>`, which is the only name the
+// rest of the wrapper uses. A default, when a property has one, is the `var()` fallback of its internal
+// property, so every default is in this file. Without a default an undeclared property stays empty.
+//
+// The `@prop` comments must stay loud (two stars), as Stencil generates the readme from the compiled
+// CSS, and must not end with a semicolon, as it ends up in the description.
+
+@use 'sass:string';
+
+// Number of type palette slots. The type style resolver reads the slots in order up to the first empty one,
+// so changing it needs no other change.
+$type-color-count: 20;
+
+graphwise-reactodia {
+  // Type palette. Each node type takes the next slot in the order the types are first seen, wrapping
+  // around past the last one. No defaults: an empty slot leaves Reactodia's own hash-based colors.
+  @for $i from 1 through $type-color-count {
+    $slot: string.slice('0#{$i}', -2);
+
+    /** @prop --graphwise-reactodia-type-color-#{$slot}: Color slot #{$i} of #{$type-color-count} for node types */
+    --_graphwise-reactodia-type-color-#{$slot}: var(--graphwise-reactodia-type-color-#{$slot});
+  }
+}

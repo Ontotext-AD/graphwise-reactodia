@@ -28,6 +28,32 @@ wrapper and is supplied through the `providerSettings` prop.
 | `theme`             | `theme`              | The reactodia theme to use                                                                                                                                                                                                                                                                                                                  | `"dark" \| "light"`                | `undefined`      |
 
 
+## CSS Custom Properties
+
+| Name                                  | Description                        |
+| ------------------------------------- | ---------------------------------- |
+| `--graphwise-reactodia-type-color-01` | Color slot 1 of 20 for node types  |
+| `--graphwise-reactodia-type-color-02` | Color slot 2 of 20 for node types  |
+| `--graphwise-reactodia-type-color-03` | Color slot 3 of 20 for node types  |
+| `--graphwise-reactodia-type-color-04` | Color slot 4 of 20 for node types  |
+| `--graphwise-reactodia-type-color-05` | Color slot 5 of 20 for node types  |
+| `--graphwise-reactodia-type-color-06` | Color slot 6 of 20 for node types  |
+| `--graphwise-reactodia-type-color-07` | Color slot 7 of 20 for node types  |
+| `--graphwise-reactodia-type-color-08` | Color slot 8 of 20 for node types  |
+| `--graphwise-reactodia-type-color-09` | Color slot 9 of 20 for node types  |
+| `--graphwise-reactodia-type-color-10` | Color slot 10 of 20 for node types |
+| `--graphwise-reactodia-type-color-11` | Color slot 11 of 20 for node types |
+| `--graphwise-reactodia-type-color-12` | Color slot 12 of 20 for node types |
+| `--graphwise-reactodia-type-color-13` | Color slot 13 of 20 for node types |
+| `--graphwise-reactodia-type-color-14` | Color slot 14 of 20 for node types |
+| `--graphwise-reactodia-type-color-15` | Color slot 15 of 20 for node types |
+| `--graphwise-reactodia-type-color-16` | Color slot 16 of 20 for node types |
+| `--graphwise-reactodia-type-color-17` | Color slot 17 of 20 for node types |
+| `--graphwise-reactodia-type-color-18` | Color slot 18 of 20 for node types |
+| `--graphwise-reactodia-type-color-19` | Color slot 19 of 20 for node types |
+| `--graphwise-reactodia-type-color-20` | Color slot 20 of 20 for node types |
+
+
 ----------------------------------------------
 
 *Built with [StencilJS](https://stenciljs.com/)*
