@@ -19,6 +19,7 @@ import {service} from './providers/service/service-inject';
 import {DiagramService} from './services/diagram/diagram.service';
 import {DiagramStorageService} from './services/diagram-storage/diagram-storage.service';
 import {EventService} from './services/event/event.service';
+import {Subscription} from './models/subscription';
 import {SubscriptionList} from './models/subscription-list';
 import {resolveTypeStyle} from './styles/type-style.resolver';
 import {GraphwiseMenu} from './menu/graphwise-menu';
@@ -48,6 +49,12 @@ let workspaceContext: WorkspaceContext | null = null;
  * the React root.
  */
 const subscriptions = new SubscriptionList();
+
+let diagramStorageSubscription: Subscription | undefined;
+
+const diagramService = service(DiagramService);
+const diagramStorageService = service(DiagramStorageService);
+const eventService = service(EventService);
 
 /**
  * Builds a Reactodia {@link SparqlDataProvider} for the given endpoint using the supplied
@@ -113,11 +120,16 @@ async function seedGraphToCanvas(context: WorkspaceContext, dataProvider: DataPr
  * root in {@link unmountReactodia}.
  */
 function onDiagramChange(model: DataDiagramModel): void {
-  const storage = service(DiagramStorageService);
-  const diagramService = service(DiagramService);
-  subscriptions.add(
-    diagramService.subscribeToDiagramChange(model, (diagram) => storage.save(diagram))
-  );
+  subscribeToDiagramChange(model);
+}
+
+/**
+ * Starts persisting the model's edits to local storage, keeping the subscription in {@link diagramStorageSubscription}.
+ */
+function subscribeToDiagramChange(model: DataDiagramModel): void {
+  diagramStorageSubscription?.();
+  diagramStorageSubscription = diagramService.subscribeToDiagramChange(model, (diagram) => diagramStorageService.save(diagram));
+  subscriptions.add(diagramStorageSubscription);
 }
 
 /**
@@ -125,12 +137,16 @@ function onDiagramChange(model: DataDiagramModel): void {
  * request (e.g. before a fresh seed should take precedence over previously saved edits). The
  * subscription is tracked in {@link subscriptions} so it is released together with the React
  * root in {@link unmountReactodia}.
+ *
+ * @param model The diagram model whose edits are persisted
  */
-function onClearDiagramStorage(): void {
-  const storage = service(DiagramStorageService);
-  const eventService = service(EventService);
+function onClearDiagramStorage(model: DataDiagramModel): void {
   subscriptions.add(
-    eventService.subscribeToClearDiagramStorage(() => storage.clear())
+    eventService.subscribeToClearDiagramStorage(() => {
+      // re-subscribe, to avoid any pending debounced saves, which may write over the cleared diagram
+      subscribeToDiagramChange(model);
+      diagramStorageService.clear();
+    })
   );
 }
 
@@ -151,11 +167,10 @@ function ReactodiaApp(props: ReactodiaAppProps) {
     workspaceContext = context;
     const {model} = context;
     onDiagramChange(model);
-    onClearDiagramStorage();
+    onClearDiagramStorage(model);
     const dataProvider = createDataProvider(props);
     const isReload = props.isReload;
-    const savedDiagram = service(DiagramStorageService).load();
-    const diagramService = service(DiagramService);
+    const savedDiagram = diagramStorageService.load();
 
     if (isReload) {
       // Reload the diagram that is currently on the canvas. This may happen when the host changes the provider
