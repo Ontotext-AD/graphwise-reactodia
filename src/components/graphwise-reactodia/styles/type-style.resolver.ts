@@ -1,26 +1,30 @@
 import {TypeStyle, TypeStyleResolver} from '@reactodia/workspace';
 
-const NODE_COLOR_VARIABLES = [
-  '--gw-foreground-visual-diagram-categorical-01',
-  '--gw-foreground-visual-diagram-categorical-02',
-  '--gw-foreground-visual-diagram-categorical-03',
-  '--gw-foreground-visual-diagram-categorical-04',
-  '--gw-foreground-visual-diagram-categorical-05',
-  '--gw-foreground-visual-diagram-categorical-06',
-  '--gw-foreground-visual-diagram-categorical-07',
-  '--gw-foreground-visual-diagram-categorical-08',
-  '--gw-foreground-visual-diagram-categorical-09',
-  '--gw-foreground-visual-diagram-categorical-10',
-  '--gw-foreground-visual-diagram-categorical-11',
-  '--gw-foreground-visual-diagram-categorical-12',
-  '--gw-foreground-visual-diagram-categorical-13',
-  '--gw-foreground-visual-diagram-categorical-14',
-  '--gw-foreground-visual-diagram-categorical-15',
-  '--gw-foreground-visual-diagram-categorical-16',
-  '--gw-foreground-visual-diagram-categorical-17',
-  '--gw-foreground-visual-diagram-categorical-18',
-  '--gw-foreground-visual-diagram-categorical-19',
-  '--gw-foreground-visual-diagram-categorical-20'
+/**
+ * The type palette of the Theme API: the internal properties `_theme.scss` resolves from the ones
+ * the host declares.
+ */
+const TYPE_COLOR_PROPERTIES = [
+  '--_graphwise-reactodia-type-color-01',
+  '--_graphwise-reactodia-type-color-02',
+  '--_graphwise-reactodia-type-color-03',
+  '--_graphwise-reactodia-type-color-04',
+  '--_graphwise-reactodia-type-color-05',
+  '--_graphwise-reactodia-type-color-06',
+  '--_graphwise-reactodia-type-color-07',
+  '--_graphwise-reactodia-type-color-08',
+  '--_graphwise-reactodia-type-color-09',
+  '--_graphwise-reactodia-type-color-10',
+  '--_graphwise-reactodia-type-color-11',
+  '--_graphwise-reactodia-type-color-12',
+  '--_graphwise-reactodia-type-color-13',
+  '--_graphwise-reactodia-type-color-14',
+  '--_graphwise-reactodia-type-color-15',
+  '--_graphwise-reactodia-type-color-16',
+  '--_graphwise-reactodia-type-color-17',
+  '--_graphwise-reactodia-type-color-18',
+  '--_graphwise-reactodia-type-color-19',
+  '--_graphwise-reactodia-type-color-20'
 ];
 
 /**
@@ -28,8 +32,9 @@ const NODE_COLOR_VARIABLES = [
  */
 const typeToIndex = new Map<string, number>();
 
-function getColor(variable: string) {
-  return getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
+function getColor(property: string) {
+  const host = document.querySelector('graphwise-reactodia');
+  return host ? getComputedStyle(host).getPropertyValue(property).trim() : undefined;
 }
 
 /**
@@ -52,7 +57,7 @@ export const resolveTypeStyle: TypeStyleResolver = (types: readonly string[]): T
     typeToIndex.set(type, index);
   }
 
-  const color = getColor(NODE_COLOR_VARIABLES[index % NODE_COLOR_VARIABLES.length]);
+  const color = getColor(TYPE_COLOR_PROPERTIES[index % TYPE_COLOR_PROPERTIES.length]);
   return color ? {color} : undefined;
 };
 

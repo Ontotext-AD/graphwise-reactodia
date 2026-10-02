@@ -1,0 +1,75 @@
+// The Theme API: CSS custom properties the wrapper reads but never declares. A host themes the wrapper
+// by declaring them on the `graphwise-reactodia` element, and changes the `theme` prop when their values change.
+//
+// Naming: `--graphwise-reactodia-<family>-<item>`. Each one is documented with `@prop` and resolved
+// right below it into an internal `--_graphwise-reactodia-<family>-<item>`, which is the only name the
+// rest of the wrapper uses. A default, when a property has one, is the `var()` fallback of its internal
+// property, so every default is in this file. Without a default an undeclared property stays empty.
+//
+// The `@prop` comments must stay loud (two stars), as Stencil generates the readme from the compiled
+// CSS, and must not end with a semicolon, as it ends up in the description.
+
+graphwise-reactodia {
+  // Type palette. Each node type takes the next slot in the order the types are first seen, wrapping
+  // around past the last one. No defaults: an empty slot leaves Reactodia's own hash-based colors.
+
+  /** @prop --graphwise-reactodia-type-color-01: Color slot 1 of 20 for node types */
+  --_graphwise-reactodia-type-color-01: var(--graphwise-reactodia-type-color-01);
+
+  /** @prop --graphwise-reactodia-type-color-02: Color slot 2 of 20 for node types */
+  --_graphwise-reactodia-type-color-02: var(--graphwise-reactodia-type-color-02);
+
+  /** @prop --graphwise-reactodia-type-color-03: Color slot 3 of 20 for node types */
+  --_graphwise-reactodia-type-color-03: var(--graphwise-reactodia-type-color-03);
+
+  /** @prop --graphwise-reactodia-type-color-04: Color slot 4 of 20 for node types */
+  --_graphwise-reactodia-type-color-04: var(--graphwise-reactodia-type-color-04);
+
+  /** @prop --graphwise-reactodia-type-color-05: Color slot 5 of 20 for node types */
+  --_graphwise-reactodia-type-color-05: var(--graphwise-reactodia-type-color-05);
+
+  /** @prop --graphwise-reactodia-type-color-06: Color slot 6 of 20 for node types */
+  --_graphwise-reactodia-type-color-06: var(--graphwise-reactodia-type-color-06);
+
+  /** @prop --graphwise-reactodia-type-color-07: Color slot 7 of 20 for node types */
+  --_graphwise-reactodia-type-color-07: var(--graphwise-reactodia-type-color-07);
+
+  /** @prop --graphwise-reactodia-type-color-08: Color slot 8 of 20 for node types */
+  --_graphwise-reactodia-type-color-08: var(--graphwise-reactodia-type-color-08);
+
+  /** @prop --graphwise-reactodia-type-color-09: Color slot 9 of 20 for node types */
+  --_graphwise-reactodia-type-color-09: var(--graphwise-reactodia-type-color-09);
+
+  /** @prop --graphwise-reactodia-type-color-10: Color slot 10 of 20 for node types */
+  --_graphwise-reactodia-type-color-10: var(--graphwise-reactodia-type-color-10);
+
+  /** @prop --graphwise-reactodia-type-color-11: Color slot 11 of 20 for node types */
+  --_graphwise-reactodia-type-color-11: var(--graphwise-reactodia-type-color-11);
+
+  /** @prop --graphwise-reactodia-type-color-12: Color slot 12 of 20 for node types */
+  --_graphwise-reactodia-type-color-12: var(--graphwise-reactodia-type-color-12);
+
+  /** @prop --graphwise-reactodia-type-color-13: Color slot 13 of 20 for node types */
+  --_graphwise-reactodia-type-color-13: var(--graphwise-reactodia-type-color-13);
+
+  /** @prop --graphwise-reactodia-type-color-14: Color slot 14 of 20 for node types */
+  --_graphwise-reactodia-type-color-14: var(--graphwise-reactodia-type-color-14);
+
+  /** @prop --graphwise-reactodia-type-color-15: Color slot 15 of 20 for node types */
+  --_graphwise-reactodia-type-color-15: var(--graphwise-reactodia-type-color-15);
+
+  /** @prop --graphwise-reactodia-type-color-16: Color slot 16 of 20 for node types */
+  --_graphwise-reactodia-type-color-16: var(--graphwise-reactodia-type-color-16);
+
+  /** @prop --graphwise-reactodia-type-color-17: Color slot 17 of 20 for node types */
+  --_graphwise-reactodia-type-color-17: var(--graphwise-reactodia-type-color-17);
+
+  /** @prop --graphwise-reactodia-type-color-18: Color slot 18 of 20 for node types */
+  --_graphwise-reactodia-type-color-18: var(--graphwise-reactodia-type-color-18);
+
+  /** @prop --graphwise-reactodia-type-color-19: Color slot 19 of 20 for node types */
+  --_graphwise-reactodia-type-color-19: var(--graphwise-reactodia-type-color-19);
+
+  /** @prop --graphwise-reactodia-type-color-20: Color slot 20 of 20 for node types */
+  --_graphwise-reactodia-type-color-20: var(--graphwise-reactodia-type-color-20);
+}
