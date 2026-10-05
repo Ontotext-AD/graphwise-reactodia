@@ -44,6 +44,24 @@ describe('graphwise-reactodia', () => {
     GraphwiseReactodiaSteps.getSearchInput().should('have.attr', 'placeholder', 'Rechercher...');
   });
 
+  it('Should apply the color scheme from the theme prop', () => {
+    // Given a mounted workspace
+    GraphwiseReactodiaSteps.provideRequiredProps();
+    GraphwiseReactodiaSteps.getWorkspace().should('exist');
+
+    // When the theme is switched to dark
+    GraphwiseReactodiaSteps.switchToDarkTheme();
+
+    // Then the workspace uses the dark color scheme
+    GraphwiseReactodiaSteps.getWorkspace().should('have.attr', 'data-theme', 'dark');
+
+    // When the theme is switched to light
+    GraphwiseReactodiaSteps.switchToLightTheme();
+
+    // Then the workspace uses the light color scheme
+    GraphwiseReactodiaSteps.getWorkspace().should('have.attr', 'data-theme', 'light');
+  });
+
   it('Should keep the workspace mounted when currentRepository changes', () => {
     // Given a mounted workspace
     GraphwiseReactodiaSteps.provideRequiredProps();

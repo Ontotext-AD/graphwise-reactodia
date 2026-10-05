@@ -54,12 +54,9 @@ export class GraphwiseReactodia {
   @Prop() providerSettings?: SparqlDataProviderSettings;
 
   /**
-   * The theme currently applied by the host (e.g. `light`, `dark`). The value itself is never read -
-   * the node colors are taken from the host's CSS custom properties - it only signals that those
-   * values have changed. The host owns the theme, including whether it follows the OS color scheme,
-   * so the change is passed in instead of being detected here.
+   * The reactodia theme to use
    */
-  @Prop() theme?: string;
+  @Prop() theme?: 'light' | 'dark';
 
   private reactRoot?: Root;
 
@@ -125,6 +122,7 @@ export class GraphwiseReactodia {
       config: this.config,
       language: this.language,
       providerSettings: this.providerSettings,
+      theme: this.theme,
     };
 
     if (this.reactRoot && !isReloading) {

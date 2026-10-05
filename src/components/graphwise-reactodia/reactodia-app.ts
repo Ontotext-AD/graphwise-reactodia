@@ -208,6 +208,7 @@ function ReactodiaApp(props: ReactodiaAppProps) {
       typeStyleResolver: resolveTypeStyle
     } as never,
     createElement(DefaultWorkspace, {
+      colorScheme: props.theme,
       menu: createElement(GraphwiseMenu),
       // place Undo/redo/layout actions in top right corner.
       actionsToolbar: {dock: 'ne'}

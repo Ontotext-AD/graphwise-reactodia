@@ -40,9 +40,9 @@ export namespace Components {
          */
         "providerSettings"?: SparqlDataProviderSettings;
         /**
-          * The theme currently applied by the host (e.g. `light`, `dark`). The value itself is never read - the node colors are taken from the host's CSS custom properties - it only signals that those values have changed. The host owns the theme, including whether it follows the OS color scheme, so the change is passed in instead of being detected here.
+          * The reactodia theme to use
          */
-        "theme"?: string;
+        "theme"?: 'light' | 'dark';
     }
 }
 declare global {
@@ -94,9 +94,9 @@ declare namespace LocalJSX {
          */
         "providerSettings"?: SparqlDataProviderSettings;
         /**
-          * The theme currently applied by the host (e.g. `light`, `dark`). The value itself is never read - the node colors are taken from the host's CSS custom properties - it only signals that those values have changed. The host owns the theme, including whether it follows the OS color scheme, so the change is passed in instead of being detected here.
+          * The reactodia theme to use
          */
-        "theme"?: string;
+        "theme"?: 'light' | 'dark';
     }
     interface IntrinsicElements {
         "graphwise-reactodia": GraphwiseReactodia;
