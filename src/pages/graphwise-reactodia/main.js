@@ -49,6 +49,10 @@ function setLanguage(language) {
   reactodia.language = language;
 }
 
+function setTheme(theme) {
+  reactodia.theme = theme;
+}
+
 // The host asks the component to drop its persisted diagram by dispatching a namespaced window
 // event, rather than holding an element reference and calling a method on it.
 function clearDiagramStorage() {

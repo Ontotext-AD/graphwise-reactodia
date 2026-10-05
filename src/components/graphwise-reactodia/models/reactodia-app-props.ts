@@ -30,6 +30,11 @@ export interface ReactodiaAppProps {
   providerSettings: SparqlDataProviderSettings;
 
   /**
+   * Color scheme of the Reactodia UI. When omitted, Reactodia follows the OS color scheme.
+   */
+  theme?: 'light' | 'dark';
+
+  /**
    * When true, the host is remounting the component to switch languages or to apply new provider
    * settings, so the workspace should not be seeded, if a seed is present.
    * Rather, the current state should simply be reloaded.

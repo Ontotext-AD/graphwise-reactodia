@@ -65,6 +65,14 @@ export class GraphwiseReactodiaSteps {
     cy.getByTestId('set-language-en').click();
   }
 
+  static switchToLightTheme() {
+    cy.getByTestId('set-theme-light').click();
+  }
+
+  static switchToDarkTheme() {
+    cy.getByTestId('set-theme-dark').click();
+  }
+
   static clearDiagramStorage() {
     cy.getByTestId('clear-diagram-storage').click();
   }
