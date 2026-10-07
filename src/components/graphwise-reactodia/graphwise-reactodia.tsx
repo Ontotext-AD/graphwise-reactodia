@@ -60,6 +60,15 @@ export class GraphwiseReactodia {
 
   private reactRoot?: Root;
 
+  /**
+   * `connectedCallback` and the watchers can run before all props are set: when the component's
+   * code is already loaded, the instance is created as soon as the
+   * element is attached, and every prop set after that triggers its watcher. Rendering at that
+   * point would initialise the graph without all props. `componentDidLoad` runs once the initial
+   * props are set, so we use it to determine when it's safe to render.
+   */
+  private isComponentLoaded = false;
+
   @Watch('currentRepository')
   onCurrentRepositoryChange(): void {
     this.renderGraph();
@@ -81,9 +90,12 @@ export class GraphwiseReactodia {
   }
 
   connectedCallback(): void {
-    if (this.config) {
-      this.renderGraph();
-    }
+    this.renderGraph();
+  }
+
+  componentDidLoad(): void {
+    this.isComponentLoaded = true;
+    this.renderGraph();
   }
 
   disconnectedCallback(): void {
@@ -100,6 +112,10 @@ export class GraphwiseReactodia {
   }
 
   private renderGraph(isReloading?: boolean): void {
+    if (!this.isComponentLoaded) {
+      return;
+    }
+
     if (!this.currentRepository) {
       throw new Error('currentRepository is required');
     }
