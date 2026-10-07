@@ -97,6 +97,47 @@ describe('graphwise-reactodia', () => {
     GraphwiseReactodiaSteps.getElements().should('have.length', 2);
   });
 
+  [
+    ['config', 'currentRepository', 'providerSettings'],
+    ['providerSettings', 'currentRepository', 'config'],
+    ['currentRepository', 'providerSettings', 'config', 'theme', 'language'],
+  ].forEach((order) => {
+    it(`Should seed the canvas when the props are set after the element is attached, in order: ${order.join(', ')}`, () => {
+      // Given the component code is already loaded
+      GraphwiseReactodiaSteps.waitForComponentToLoad();
+      GraphwiseReactodiaSteps.spyOnConsoleError();
+
+      // When a new element is attached and only then gets its props, one by one
+      GraphwiseReactodiaSteps.attachThenSetProps(order);
+
+      // Then the workspace mounts with the seed on the canvas
+      GraphwiseReactodiaSteps.getElements().should('have.length', 2);
+      // And no prop is reported as missing while the others are still being set
+      GraphwiseReactodiaSteps.getConsoleError().should('not.have.been.called');
+    });
+  });
+
+  it('Should apply provider settings changed at runtime, keeping the current diagram', () => {
+    // Given a workspace seeded with two nodes
+    GraphwiseReactodiaSteps.setSeed();
+    GraphwiseReactodiaSteps.provideRequiredProps();
+    GraphwiseReactodiaSteps.getElements().should('have.length', 2);
+    // And no query is built with the changed settings yet
+    GraphwiseReactodiaSteps.getSparqlQueries().should((queries) => {
+      expect(queries.join('\n')).to.not.contain('PREFIX changed:');
+    });
+
+    // When the host changes the provider settings at runtime
+    GraphwiseReactodiaSteps.changeProviderSettings();
+
+    // Then the data is requested again with the changed settings
+    GraphwiseReactodiaSteps.getSparqlQueries().should((queries) => {
+      expect(queries.join('\n')).to.contain('PREFIX changed:');
+    });
+    // And the current diagram is kept
+    GraphwiseReactodiaSteps.getElements().should('have.length', 2);
+  });
+
   it('Should restore the persisted diagram on refresh, until the host clears it', () => {
     // Given a workspace seeded with two nodes, which persists the layout to local storage
     GraphwiseReactodiaSteps.setSeed();

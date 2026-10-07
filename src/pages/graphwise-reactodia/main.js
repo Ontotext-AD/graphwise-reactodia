@@ -2,7 +2,13 @@
 // result. The shape has to match what the provider asks for: SELECT/ASK queries are parsed with
 // `response.json()` and would blow up on an empty body, CONSTRUCT/DESCRIBE queries are parsed as
 // turtle, where an empty body is a valid (empty) graph.
+//
+// The queries are recorded, so the tests can tell which provider settings built them.
+const sparqlQueries = [];
+window.sparqlQueries = sparqlQueries;
+
 async function stubQueryFunction(params) {
+  sparqlQueries.push(params.body);
   const accept = params.headers?.['Accept'] ?? '';
   if (accept.includes('sparql-results+json')) {
     const body = JSON.stringify({head: {vars: []}, results: {bindings: []}, boolean: false});
@@ -31,6 +37,34 @@ function setQueryFunction() {
 // OWL/RDFS preset, copied into `owl-rdfs-settings.js`.
 function setProviderSettings() {
   reactodia.providerSettings = OWL_RDFS_SETTINGS;
+}
+
+// A runtime change goes through the `providerSettings` prop. The extra prefix marks the queries built
+// with the changed settings.
+function changeProviderSettings() {
+  reactodia.providerSettings = {
+    ...OWL_RDFS_SETTINGS,
+    defaultPrefix: `${OWL_RDFS_SETTINGS.defaultPrefix}\nPREFIX changed: <http://example.com/changed#>\n`,
+  };
+}
+
+// Replaces the element with a new one the way a framework such as Angular renders it: attached first, then
+// the props set one by one. The component code is already loaded by then, so the component is initialized
+// before it has any of its props.
+function attachThenSetProps(order) {
+  const props = {
+    config: {queryFunction: stubQueryFunction, seedIris: SEED_NODES},
+    currentRepository: 'repo-a',
+    providerSettings: OWL_RDFS_SETTINGS,
+    language: 'fr',
+    theme: 'light',
+  };
+  const element = document.createElement('graphwise-reactodia');
+  element.dataset.test = 'reactodia';
+  document.querySelector('graphwise-reactodia').replaceWith(element);
+  order.forEach((prop) => {
+    element[prop] = props[prop];
+  });
 }
 
 function setSeed() {

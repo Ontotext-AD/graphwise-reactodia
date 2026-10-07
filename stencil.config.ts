@@ -33,6 +33,10 @@ export const config: Config = {
   ],
   devServer: {
     initialLoadUrl: '/pages/index.html',
+    // With hot module replacement, the dev build imports the component code again for every element. Reloading the
+    // page on a change turns that off, so the code is loaded once per page, as in the production build, and the
+    // tests run against the same loading behavior.
+    reloadStrategy: 'pageReload',
   },
   plugins: [
     sass(),
