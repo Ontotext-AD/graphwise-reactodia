@@ -60,6 +60,8 @@ export class GraphwiseReactodia {
 
   private reactRoot?: Root;
 
+  private isComponentLoaded = false;
+
   @Watch('currentRepository')
   onCurrentRepositoryChange(): void {
     this.renderGraph();
@@ -81,9 +83,12 @@ export class GraphwiseReactodia {
   }
 
   connectedCallback(): void {
-    if (this.config) {
-      this.renderGraph();
-    }
+    this.renderGraph();
+  }
+
+  componentDidLoad(): void {
+    this.isComponentLoaded = true;
+    this.renderGraph();
   }
 
   disconnectedCallback(): void {
@@ -100,6 +105,11 @@ export class GraphwiseReactodia {
   }
 
   private renderGraph(isReloading?: boolean): void {
+    // A host may set the initial props one by one. All props have been set at this point, so a host should have provided them
+    if (!this.isComponentLoaded) {
+      return;
+    }
+
     if (!this.currentRepository) {
       throw new Error('currentRepository is required');
     }

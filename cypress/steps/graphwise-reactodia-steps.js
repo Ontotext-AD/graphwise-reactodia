@@ -35,6 +35,30 @@ export class GraphwiseReactodiaSteps {
     cy.getByTestId('set-provider-settings').click();
   }
 
+  static changeProviderSettings() {
+    cy.getByTestId('change-provider-settings').click();
+  }
+
+  static waitForComponentToLoad() {
+    this.getComponent().should('have.class', 'hydrated');
+  }
+
+  static attachThenSetProps(order) {
+    cy.window().invoke('attachThenSetProps', order);
+  }
+
+  static spyOnConsoleError() {
+    cy.window().then((win) => cy.spy(win.console, 'error').as('consoleError'));
+  }
+
+  static getConsoleError() {
+    return cy.get('@consoleError');
+  }
+
+  static getSparqlQueries() {
+    return cy.window().its('sparqlQueries');
+  }
+
   static setRepository() {
     cy.getByTestId('set-repository').click();
   }
