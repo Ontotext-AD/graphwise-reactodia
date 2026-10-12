@@ -258,5 +258,81 @@ describe('graphwise-reactodia', () => {
     GraphwiseReactodiaSteps.getElements().should('have.length', 2);
     // And the persisted diagram is unchanged
     GraphwiseReactodiaSteps.storedDiagramShouldHaveElements(2);
+    // And the rejected file is reported to the host
+    GraphwiseReactodiaSteps.shouldReportError('diagram-import');
+  });
+
+  it('Should report its errors to the host', () => {
+    // When only the repository is set, leaving queryFunction unset
+    GraphwiseReactodiaSteps.setRepository();
+
+    // Then the missing prop is reported to the host
+    GraphwiseReactodiaSteps.shouldReportError('missing-required-prop', 'config.queryFunction is required');
+
+    // When the workspace mounts with a seed and a query function that always fails
+    GraphwiseReactodiaSteps.visit();
+    GraphwiseReactodiaSteps.setSeed();
+    GraphwiseReactodiaSteps.setFailingQueryFunction();
+    GraphwiseReactodiaSteps.setProviderSettings();
+    GraphwiseReactodiaSteps.setRepository();
+
+    // Then the failed request for the seed data is reported to the host
+    GraphwiseReactodiaSteps.shouldReportError('data-fetch', 'Query failed');
+
+    // When the workspace mounts with a stored diagram that is not valid JSON
+    GraphwiseReactodiaSteps.visit();
+    GraphwiseReactodiaSteps.setStoredDiagram('{not a diagram');
+    GraphwiseReactodiaSteps.provideRequiredProps();
+
+    // Then the unreadable diagram is reported to the host
+    GraphwiseReactodiaSteps.shouldReportError('local-diagram-read');
+    // And the canvas is rendered empty
+    GraphwiseReactodiaSteps.getCanvas().should('exist');
+    GraphwiseReactodiaSteps.getElements().should('not.exist');
+
+    // When the workspace mounts with a stored value that is not a diagram
+    GraphwiseReactodiaSteps.visit();
+    GraphwiseReactodiaSteps.storeDiagram('invalid-diagram.json');
+    GraphwiseReactodiaSteps.provideRequiredProps();
+
+    // Then the failed load is reported to the host
+    GraphwiseReactodiaSteps.shouldReportError('diagram-load');
+  });
+
+  it('Should report a failed request once, when it also fails the load', () => {
+    // Given a stored diagram
+    GraphwiseReactodiaSteps.storeDiagram('valid-diagram.json');
+
+    // When the workspace mounts with a query function that always fails
+    GraphwiseReactodiaSteps.setFailingQueryFunction();
+    GraphwiseReactodiaSteps.setProviderSettings();
+    GraphwiseReactodiaSteps.setRepository();
+
+    // Then the load fails
+    GraphwiseReactodiaSteps.getLoadingError().should('exist');
+    // And the failed request is reported to the host
+    GraphwiseReactodiaSteps.shouldReportError('data-fetch', 'Query failed');
+    // And the load it failed is not reported as well
+    GraphwiseReactodiaSteps.shouldNotReportError('diagram-load');
+  });
+
+  it('Should not report cancelled requests', () => {
+    // Given a workspace with a query function that never answers
+    GraphwiseReactodiaSteps.setHangingQueryFunction();
+    GraphwiseReactodiaSteps.setProviderSettings();
+    GraphwiseReactodiaSteps.setRepository();
+
+    // And an entity search, which is waiting for its answer
+    GraphwiseReactodiaSteps.getSearchInput().type('alice');
+    GraphwiseReactodiaSteps.openEntitiesSearch();
+    GraphwiseReactodiaSteps.getPendingQueries().should('be.greaterThan', 0);
+
+    // When the search is replaced by another one, which cancels its request
+    GraphwiseReactodiaSteps.getSearchInput().type(' bob');
+
+    // Then the request is cancelled
+    GraphwiseReactodiaSteps.getCancelledQueries().should('be.greaterThan', 0);
+    // And nothing is reported to the host
+    GraphwiseReactodiaSteps.getReportedErrors().should('be.empty');
   });
 });

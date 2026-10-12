@@ -1,10 +1,17 @@
-import {Component, Element, h, Host, Prop, Watch} from '@stencil/core';
+import {Component, Element, Event, EventEmitter, h, Host, Prop, Watch} from '@stencil/core';
 import {Root} from 'react-dom/client';
 import {SparqlDataProviderSettings} from '@reactodia/workspace';
 import {mountReactodia, unmountReactodia, updateReactodia} from './reactodia-app';
 import {LanguageKey} from './i18n/language-key';
 import {ReactodiaConfig} from './models/reactodia-config';
+import {ErrorReport} from './models/error/error-report';
+import {ErrorCode} from './models/error/error-code';
+import {SubscriptionList} from './models/subscription-list';
+import {service} from './providers/service/service-inject';
+import {ErrorService} from './services/error/error.service';
 import {resetColors} from './styles/type-style.resolver';
+
+const errorService = service(ErrorService);
 
 /**
  * A web component that renders a graph with the Reactodia workspace.
@@ -23,6 +30,8 @@ import {resetColors} from './styles/type-style.resolver';
 })
 export class GraphwiseReactodia {
   @Element() private readonly hostElement?: HTMLElement;
+
+  private readonly subscriptions = new SubscriptionList();
 
   /**
    * The active repository id. Appended to {@link queryFunction} as the request `url`;
@@ -58,6 +67,12 @@ export class GraphwiseReactodia {
    */
   @Prop() theme?: 'light' | 'dark';
 
+  /**
+   * Fires, when an error has occurred. The host decides how to handle it.
+   */
+  @Event({eventName: 'graphwiseReactodiaError'})
+  errorEmitter!: EventEmitter<ErrorReport>;
+
   private reactRoot?: Root;
 
   /**
@@ -90,6 +105,7 @@ export class GraphwiseReactodia {
   }
 
   connectedCallback(): void {
+    this.subscribeToErrors();
     this.renderGraph();
   }
 
@@ -99,6 +115,7 @@ export class GraphwiseReactodia {
   }
 
   disconnectedCallback(): void {
+    this.subscriptions.unsubscribeAll();
     if (this.reactRoot) {
       unmountReactodia(this.reactRoot);
       this.reactRoot = undefined;
@@ -111,21 +128,25 @@ export class GraphwiseReactodia {
     );
   }
 
+  private subscribeToErrors() {
+    this.subscriptions.add(errorService.subscribe((error) => this.errorEmitter.emit(error)));
+  }
+
   private renderGraph(isReloading?: boolean): void {
     if (!this.isComponentLoaded) {
       return;
     }
 
     if (!this.currentRepository) {
-      throw new Error('currentRepository is required');
+      throw this.reportMissingPropError('currentRepository is required');
     }
 
     if (!this.config?.queryFunction) {
-      throw new Error('config.queryFunction is required');
+      throw this.reportMissingPropError('config.queryFunction is required');
     }
 
     if (!this.providerSettings) {
-      throw new Error('providerSettings is required');
+      throw this.reportMissingPropError('providerSettings is required');
     }
 
     if (!this.hostElement) {
@@ -146,5 +167,11 @@ export class GraphwiseReactodia {
     } else {
       this.reactRoot = mountReactodia(this.hostElement, props);
     }
+  }
+
+  private reportMissingPropError(message: string): Error {
+    const error = new Error(message);
+    errorService.report(ErrorCode.MISSING_REQUIRED_PROP, error);
+    return error;
   }
 }

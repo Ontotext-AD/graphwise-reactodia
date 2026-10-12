@@ -17,6 +17,35 @@ async function stubQueryFunction(params) {
   return new Response('', {headers: {'Content-Type': 'text/turtle'}});
 }
 
+// A transport that always fails, as an unreachable or misconfigured endpoint would.
+async function failingQueryFunction() {
+  throw new Error('Query failed');
+}
+
+// A transport that never answers. Once its request is cancelled it fails with an ordinary error, as a transport
+// that does not throw an `AbortError` would. The pending and the cancelled requests are counted.
+window.pendingQueries = 0;
+window.cancelledQueries = 0;
+
+function hangingQueryFunction(params) {
+  window.pendingQueries++;
+  return new Promise((_resolve, reject) => {
+    params.signal?.addEventListener('abort', () => {
+      window.pendingQueries--;
+      window.cancelledQueries++;
+      reject(new Error('Request cancelled'));
+    });
+  });
+}
+
+// The errors the component reports are recorded, so the tests can tell what the host was notified of.
+const reportedErrors = [];
+window.reportedErrors = reportedErrors;
+// The listener is on the document, since the tests replace the element.
+document.addEventListener('graphwiseReactodiaError', (event) => {
+  reportedErrors.push({code: event.detail.code, message: event.detail.error.message});
+});
+
 const SEED_NODES = ['http://example.com/alice', 'http://example.com/bob'];
 
 const SEED_GRAPH = [
@@ -31,6 +60,14 @@ const reactodia = document.querySelector('graphwise-reactodia');
 
 function setQueryFunction() {
   reactodia.config = {...reactodia.config, queryFunction: stubQueryFunction};
+}
+
+function setFailingQueryFunction() {
+  reactodia.config = {...reactodia.config, queryFunction: failingQueryFunction};
+}
+
+function setHangingQueryFunction() {
+  reactodia.config = {...reactodia.config, queryFunction: hangingQueryFunction};
 }
 
 // The wrapper has no default preset, so the host always passes one. The demo uses Reactodia's generic

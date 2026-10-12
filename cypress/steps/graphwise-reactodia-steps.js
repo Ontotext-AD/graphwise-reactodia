@@ -19,6 +19,10 @@ export class GraphwiseReactodiaSteps {
     return this.getComponent().find('.reactodia-unified-search__search-input');
   }
 
+  static openEntitiesSearch() {
+    this.getComponent().find('.reactodia-unified-search__section-tab').contains('Entities').click();
+  }
+
   static getElements() {
     return this.getCanvas().find('[data-element-id]');
   }
@@ -29,6 +33,22 @@ export class GraphwiseReactodiaSteps {
 
   static setQueryFunction() {
     cy.getByTestId('set-query-function').click();
+  }
+
+  static setFailingQueryFunction() {
+    cy.getByTestId('set-failing-query-function').click();
+  }
+
+  static setHangingQueryFunction() {
+    cy.getByTestId('set-hanging-query-function').click();
+  }
+
+  static getPendingQueries() {
+    return cy.window().its('pendingQueries');
+  }
+
+  static getCancelledQueries() {
+    return cy.window().its('cancelledQueries');
   }
 
   static setProviderSettings() {
@@ -57,6 +77,40 @@ export class GraphwiseReactodiaSteps {
 
   static getSparqlQueries() {
     return cy.window().its('sparqlQueries');
+  }
+
+  static getReportedErrors() {
+    return cy.window().its('reportedErrors');
+  }
+
+  /**
+   * Retries until an error with the given code, and message when given, is reported to the host.
+   */
+  static shouldReportError(code, message) {
+    return this.getReportedErrors().should((errors) => {
+      const messages = errors.filter((error) => error.code === code).map((error) => error.message);
+      expect(messages, `reported "${code}" errors`).to.not.be.empty;
+      if (message) {
+        expect(messages).to.include(message);
+      }
+    });
+  }
+
+  static shouldNotReportError(code) {
+    return this.getReportedErrors().should((errors) => {
+      expect(errors.map((error) => error.code), 'reported error codes').to.not.include(code);
+    });
+  }
+
+  static getLoadingError() {
+    return this.getComponent().find('.reactodia-spinner[data-error="true"]');
+  }
+
+  /**
+   * Stores a diagram from `cypress/fixtures` as the persisted one.
+   */
+  static storeDiagram(fixture) {
+    cy.fixture(fixture).then((diagram) => this.setStoredDiagram(JSON.stringify(diagram)));
   }
 
   static setRepository() {
@@ -103,6 +157,10 @@ export class GraphwiseReactodiaSteps {
 
   static getStoredDiagram() {
     return cy.window().its('localStorage').invoke('getItem', 'diagram.state');
+  }
+
+  static setStoredDiagram(raw) {
+    cy.window().its('localStorage').invoke('setItem', 'diagram.state', raw);
   }
 
   /**

@@ -2,6 +2,8 @@ import type {SerializedDiagram} from '@reactodia/workspace';
 import {Service} from '../../providers/service/service';
 import {service} from '../../providers/service/service-inject';
 import {WindowService} from '../window/window.service';
+import {ErrorService} from '../error/error.service';
+import {ErrorCode} from '../../models/error/error-code';
 
 /**
  * Service for local store-related diagram operations
@@ -12,23 +14,34 @@ export class DiagramStorageService {
 
   private static readonly STORAGE_KEY = 'diagram.state';
 
+  private readonly errorService = service(ErrorService);
+
   /**
    * Load the persisted diagram from the local store, or `undefined` when nothing is stored (or the stored value
    * is unreadable).
    */
   load(): SerializedDiagram | undefined {
-    const raw = this.storage.getItem(DiagramStorageService.STORAGE_KEY);
-    if (!raw) {
+    try {
+      const raw = this.storage.getItem(DiagramStorageService.STORAGE_KEY);
+      if (!raw) {
+        return undefined;
+      }
+      return JSON.parse(raw) as SerializedDiagram;
+    } catch (error) {
+      this.errorService.report(ErrorCode.LOCAL_DIAGRAM_READ, error);
       return undefined;
     }
-    return JSON.parse(raw) as SerializedDiagram;
   }
 
   /**
    * Persists the given diagram serialization.
    */
   save(diagram: SerializedDiagram): void {
-    this.storage.setItem(DiagramStorageService.STORAGE_KEY, JSON.stringify(diagram));
+    try {
+      this.storage.setItem(DiagramStorageService.STORAGE_KEY, JSON.stringify(diagram));
+    } catch (error) {
+      this.errorService.report(ErrorCode.LOCAL_DIAGRAM_SAVE, error);
+    }
   }
 
   /**

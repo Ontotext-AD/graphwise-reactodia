@@ -28,6 +28,13 @@ wrapper and is supplied through the `providerSettings` prop.
 | `theme`             | `theme`              | The reactodia theme to use                                                                                                                                                                                                                                                                                                                  | `"dark" \| "light"`                | `undefined`      |
 
 
+## Events
+
+| Event                     | Description                                                           | Type                       |
+| ------------------------- | --------------------------------------------------------------------- | -------------------------- |
+| `graphwiseReactodiaError` | Fires, when an error has occurred. The host decides how to handle it. | `CustomEvent<ErrorReport>` |
+
+
 ## CSS Custom Properties
 
 | Name                                        | Description                                                               |

@@ -8,9 +8,11 @@ import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 import { ReactodiaConfig } from "./components/graphwise-reactodia/models/reactodia-config";
 import { LanguageKey } from "./components/graphwise-reactodia/i18n/language-key";
 import { SparqlDataProviderSettings } from "@reactodia/workspace";
+import { ErrorReport } from "./components/graphwise-reactodia/models/error/error-report";
 export { ReactodiaConfig } from "./components/graphwise-reactodia/models/reactodia-config";
 export { LanguageKey } from "./components/graphwise-reactodia/i18n/language-key";
 export { SparqlDataProviderSettings } from "@reactodia/workspace";
+export { ErrorReport } from "./components/graphwise-reactodia/models/error/error-report";
 export namespace Components {
     /**
      * A web component that renders a graph with the Reactodia workspace.
@@ -45,7 +47,14 @@ export namespace Components {
         "theme"?: 'light' | 'dark';
     }
 }
+export interface GraphwiseReactodiaCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLGraphwiseReactodiaElement;
+}
 declare global {
+    interface HTMLGraphwiseReactodiaElementEventMap {
+        "graphwiseReactodiaError": ErrorReport;
+    }
     /**
      * A web component that renders a graph with the Reactodia workspace.
      * The component is backed by a SPARQL endpoint but is endpoint-agnostic: the host passes
@@ -56,6 +65,14 @@ declare global {
      * wrapper and is supplied through the `providerSettings` prop.
      */
     interface HTMLGraphwiseReactodiaElement extends Components.GraphwiseReactodia, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLGraphwiseReactodiaElementEventMap>(type: K, listener: (this: HTMLGraphwiseReactodiaElement, ev: GraphwiseReactodiaCustomEvent<HTMLGraphwiseReactodiaElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLGraphwiseReactodiaElementEventMap>(type: K, listener: (this: HTMLGraphwiseReactodiaElement, ev: GraphwiseReactodiaCustomEvent<HTMLGraphwiseReactodiaElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
     var HTMLGraphwiseReactodiaElement: {
         prototype: HTMLGraphwiseReactodiaElement;
@@ -89,6 +106,10 @@ declare namespace LocalJSX {
           * @default LanguageKey.EN
          */
         "language"?: LanguageKey;
+        /**
+          * Fires, when an error has occurred. The host decides how to handle it.
+         */
+        "onGraphwiseReactodiaError"?: (event: GraphwiseReactodiaCustomEvent<ErrorReport>) => void;
         /**
           * Query preset for the SPARQL data provider, owned and configured by the host. A DOM property (an object, not an attribute) passed in from outside the wrapper. Required: the wrapper has no default preset and throws when it is missing. Changing it rebuilds the data provider and reloads the graph with it, keeping the current diagram.
          */
