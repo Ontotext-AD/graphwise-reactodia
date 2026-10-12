@@ -10,6 +10,8 @@ import {
 import {service} from '../providers/service/service-inject';
 import {DiagramService} from '../services/diagram/diagram.service';
 import {DiagramFileService} from '../services/diagram-file/diagram-file.service';
+import {ErrorService} from '../services/error/error.service';
+import {ErrorCode} from '../models/error/error-code';
 
 /**
  * The workspace main menu: Reactodia's default actions, followed by the diagram download and upload.
@@ -22,6 +24,7 @@ export function GraphwiseMenu() {
   const t = useTranslation();
   const diagramFileService = service(DiagramFileService);
   const diagramService = service(DiagramService);
+  const errorService = service(ErrorService);
 
   const downloadDiagram = (): void => {
     const timestamp = new Date().toISOString().replace(/[-:]|\.\d+Z$/g, '');
@@ -33,7 +36,7 @@ export function GraphwiseMenu() {
       const diagram = await diagramFileService.read(file);
       await diagramService.importDiagram(model, model.dataProvider, diagram);
     } catch (error) {
-      console.error('Failed to upload the diagram', error);
+      errorService.report(ErrorCode.DIAGRAM_IMPORT, error);
     }
   };
 

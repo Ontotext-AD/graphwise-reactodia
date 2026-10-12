@@ -66,6 +66,41 @@ persisted in the DB, so they can't be fetched lazily and must be supplied by the
 
 When both are supplied `seedGraph` takes precedence over `seedIris`.
 
+## Error handling
+
+The element dispatches a `graphwiseReactodiaError` DOM event for every error it reports; the codes below
+list them. The event only informs the host and it bubbles. Its name is exported as
+`GRAPHWISE_REACTODIA_ERROR_EVENT`.
+
+```js
+element.addEventListener('graphwiseReactodiaError', (event) => {
+  const {code, error} = event.detail;
+});
+```
+
+`detail` is an `ErrorReport`:
+
+| Field   | Description                                                                             |
+|---------|-----------------------------------------------------------------------------------------|
+| `code`  | An `ErrorCode`. The host translates by it.                                              |
+| `error` | Always an `Error`; its `message` is untranslated developer text, meant for the logs.    |
+
+`ErrorCode`:
+
+| Code                    | Reported when                                              |
+|-------------------------|------------------------------------------------------------|
+| `missing-required-prop` | A required prop is missing.                                |
+| `data-fetch`            | A SPARQL data provider call failed.                        |
+| `diagram-load`          | The startup load, a reload or a repository switch failed.  |
+| `diagram-import`        | The uploaded file was rejected or its import failed.       |
+| `local-diagram-read`    | Reading the diagram from local storage failed.             |
+| `local-diagram-save`    | Saving the diagram in local storage failed.                |
+
+Failed PNG/SVG exports and printing are not reported.
+
+Every failure is reported once: an error is skipped when it, or an error in its `cause` chain, is already reported.
+Aborted requests are not reported.
+
 ## Editing the fork
 
 Reactodia lives in the `reactodia-workspace/` submodule, which is its own git repo (remote:

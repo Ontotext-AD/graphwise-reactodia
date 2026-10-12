@@ -3,6 +3,8 @@ import {createRoot, Root} from 'react-dom/client';
 import {
   DataDiagramModel,
   DataProvider,
+  DecoratedDataProvider,
+  DecoratedDataProviderOptions,
   DefaultWorkspace,
   SerializedDiagram,
   SparqlDataProvider,
@@ -19,6 +21,8 @@ import {service} from './providers/service/service-inject';
 import {DiagramService} from './services/diagram/diagram.service';
 import {DiagramStorageService} from './services/diagram-storage/diagram-storage.service';
 import {EventService} from './services/event/event.service';
+import {ErrorService} from './services/error/error.service';
+import {ErrorCode} from './models/error/error-code';
 import {Subscription} from './models/subscription';
 import {SubscriptionList} from './models/subscription-list';
 import {resolveTypeStyle} from './styles/type-style.resolver';
@@ -55,18 +59,35 @@ let diagramStorageSubscription: Subscription | undefined;
 const diagramService = service(DiagramService);
 const diagramStorageService = service(DiagramStorageService);
 const eventService = service(EventService);
+const errorService = service(ErrorService);
+
+/**
+ * Reports every failed data provider call, unless the call was aborted, and passes the failure on to the caller.
+ */
+const reportDataFetchError: DecoratedDataProviderOptions['decorator'] = async (_method, params, body) => {
+  try {
+    return await body(params);
+  } catch (error) {
+    if (!params.signal?.aborted) {
+      errorService.report(ErrorCode.DATA_FETCH, error);
+    }
+    throw error;
+  }
+};
 
 /**
  * Builds a Reactodia {@link SparqlDataProvider} for the given endpoint using the supplied
  * query preset. The host owns the query configuration and always passes it in via props.
+ * The provider is decorated, so its failed calls are reported.
  */
-function createDataProvider(props: ReactodiaAppProps): SparqlDataProvider {
+function createDataProvider(props: ReactodiaAppProps): DataProvider {
   const {currentRepository, config, providerSettings} = props;
-  return new SparqlDataProvider({
+  const baseProvider = new SparqlDataProvider({
     endpointUrl: currentRepository,
     queryMethod: 'POST',
     queryFunction: config.queryFunction
   }, providerSettings);
+  return new DecoratedDataProvider({baseProvider, decorator: reportDataFetchError});
 }
 
 /**
@@ -172,19 +193,27 @@ function ReactodiaApp(props: ReactodiaAppProps) {
     const isReload = props.isReload;
     const savedDiagram = diagramStorageService.load();
 
-    if (isReload) {
-      // Reload the diagram that is currently on the canvas. This may happen when the host changes the provider
-      // settings, or when the user switches the language at runtime, since there is no existing mechanism to
-      // re-translate the UI at runtime (not for the UI labels at least)
-      await diagramService.importDiagram(model, dataProvider, currentDiagram, signal);
-    } else if (config.seedIris?.length) {
-      await seedIrisToCanvas(context, dataProvider, config.seedIris, signal);
-    } else if (config.seedGraph?.length) {
-      await seedGraphToCanvas(context, dataProvider, config.seedGraph, signal);
-    } else {
-      // Restore the previously saved layout when present, otherwise start empty. Either way this binds the
-      // data provider (savedDiagram is undefined -> empty diagram), so the unified search/lookup works.
-      await diagramService.importDiagram(model, dataProvider, savedDiagram, signal);
+    try {
+      if (isReload) {
+        // Reload the diagram that is currently on the canvas. This may happen when the host changes the provider
+        // settings, or when the user switches the language at runtime, since there is no existing mechanism to
+        // re-translate the UI at runtime (not for the UI labels at least)
+        await diagramService.importDiagram(model, dataProvider, currentDiagram, signal);
+      } else if (config.seedIris?.length) {
+        await seedIrisToCanvas(context, dataProvider, config.seedIris, signal);
+      } else if (config.seedGraph?.length) {
+        await seedGraphToCanvas(context, dataProvider, config.seedGraph, signal);
+      } else {
+        // Restore the previously saved layout when present, otherwise start empty. Either way this binds the
+        // data provider (savedDiagram is undefined -> empty diagram), so the unified search/lookup works.
+        await diagramService.importDiagram(model, dataProvider, savedDiagram, signal);
+      }
+    } catch (error) {
+      if (!signal.aborted) {
+        errorService.report(ErrorCode.DIAGRAM_LOAD, error);
+      }
+      // rethrow, so the workspace shows the failure on its loading spinner
+      throw error;
     }
   }, [language]);
 
@@ -228,7 +257,7 @@ export function mountReactodia(container: HTMLElement, props: ReactodiaAppProps)
 /**
  * Re-points the diagram at a new SPARQL endpoint by recreating it with a fresh data provider.
  * The canvas is reset to empty, matching the initial mount, since the data of another repository
- * has nothing to do with the current graph.
+ * has nothing to do with the current graph. A failure is reported, not thrown.
  */
 export async function updateReactodia(props: ReactodiaAppProps): Promise<void> {
   if (!workspaceContext) {
@@ -236,7 +265,11 @@ export async function updateReactodia(props: ReactodiaAppProps): Promise<void> {
   }
   const {model} = workspaceContext;
   const dataProvider = createDataProvider(props);
-  await model.createNewDiagram({dataProvider});
+  try {
+    await model.createNewDiagram({dataProvider});
+  } catch (error) {
+    errorService.report(ErrorCode.DIAGRAM_LOAD, error);
+  }
 }
 
 /**

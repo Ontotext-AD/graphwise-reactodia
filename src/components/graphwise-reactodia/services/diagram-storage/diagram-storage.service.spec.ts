@@ -1,6 +1,8 @@
 import {SerializedDiagram} from '@reactodia/workspace';
 import {DiagramStorageService} from './diagram-storage.service';
 import {WindowService} from '../window/window.service';
+import {ErrorService} from '../error/error.service';
+import {ErrorCode} from '../../models/error/error-code';
 import {ServiceProvider} from '../../providers/service/service.provider';
 import {createStorageMock, StorageMock} from '../../testing/storage.mock';
 
@@ -11,19 +13,27 @@ describe('DiagramStorageService', () => {
   let diagramStorageService: DiagramStorageService;
   let storage: StorageMock;
   let windowServiceMock: jest.Mocked<WindowService>;
+  let errorServiceMock: jest.Mocked<ErrorService>;
 
   beforeEach(() => {
     storage = createStorageMock();
-    diagramStorageService = new DiagramStorageService();
 
     windowServiceMock = {
       getWindow: jest.fn(() => ({localStorage: storage}) as unknown as Window),
     } as unknown as jest.Mocked<WindowService>;
 
+    errorServiceMock = {
+      report: jest.fn(),
+    } as unknown as jest.Mocked<ErrorService>;
+
     // Only the services used by the test are stubbed; the cast bridges get's generic return type.
-    jest.spyOn(ServiceProvider, 'get').mockImplementation(
-      (type) => (type === WindowService ? windowServiceMock : undefined) as never
-    );
+    jest.spyOn(ServiceProvider, 'get').mockImplementation((type) => {
+      const services = new Map<unknown, unknown>([[WindowService, windowServiceMock], [ErrorService, errorServiceMock]]);
+      return services.get(type) as never;
+    });
+
+    // Created after the stub, since the service resolves its dependencies on construction
+    diagramStorageService = new DiagramStorageService();
   });
 
   afterEach(() => {
@@ -43,6 +53,33 @@ describe('DiagramStorageService', () => {
     // When the diagram is loaded
     // Then the parsed diagram is returned
     expect(diagramStorageService.load()).toEqual(diagram);
+  });
+
+  test('load reports an unreadable value and returns undefined', () => {
+    // Given a value that is not valid JSON under the storage key
+    storage.setItem(STORAGE_KEY, '{not a diagram');
+
+    // When the diagram is loaded
+    const loaded = diagramStorageService.load();
+
+    // Then nothing is returned
+    expect(loaded).toBeUndefined();
+    // And the failure is reported
+    expect(errorServiceMock.report).toHaveBeenCalledWith(ErrorCode.LOCAL_DIAGRAM_READ, expect.any(SyntaxError));
+  });
+
+  test('save reports a failed write instead of throwing', () => {
+    // Given a store that rejects writes
+    const error = new Error('Quota exceeded');
+    jest.spyOn(storage, 'setItem').mockImplementation(() => {
+      throw error;
+    });
+
+    // When a diagram is saved
+    // Then it does not throw
+    expect(() => diagramStorageService.save(diagram)).not.toThrow();
+    // And the failure is reported
+    expect(errorServiceMock.report).toHaveBeenCalledWith(ErrorCode.LOCAL_DIAGRAM_SAVE, error);
   });
 
   test('save persists the serialized diagram under the storage key', () => {
