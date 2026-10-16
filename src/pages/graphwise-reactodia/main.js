@@ -46,7 +46,10 @@ document.addEventListener('graphwiseReactodiaError', (event) => {
   reportedErrors.push({code: event.detail.code, message: event.detail.error.message});
 });
 
-const SEED_NODES = ['http://example.com/alice', 'http://example.com/bob'];
+// The text searches the component notifies the host of are counted.
+window.textSearches = 0;
+
+const SEED_NODES =['http://example.com/alice', 'http://example.com/bob'];
 
 const SEED_GRAPH = [
   {
@@ -68,6 +71,18 @@ function setFailingQueryFunction() {
 
 function setHangingQueryFunction() {
   reactodia.config = {...reactodia.config, queryFunction: hangingQueryFunction};
+}
+
+function setTextSearchListener() {
+  reactodia.config = {...reactodia.config, onTextSearch: () => window.textSearches++};
+}
+
+function setThrowingTextSearchListener() {
+  reactodia.config = {
+    ...reactodia.config, onTextSearch: () => {
+      throw new Error('Text search listener failed');
+    }
+  };
 }
 
 // The wrapper has no default preset, so the host always passes one. The demo uses Reactodia's generic

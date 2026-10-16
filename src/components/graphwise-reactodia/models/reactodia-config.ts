@@ -16,6 +16,11 @@ export interface ReactodiaConfig {
   queryFunction: SparqlQueryFunction;
 
   /**
+   * Called on each entity search by text.
+   */
+  onTextSearch?: () => void;
+
+  /**
    * IRIs of the elements(nodes) to place on the canvas on startup. When provided, each IRI is added
    * as an element and its data (labels, types, properties) and links are resolved from the
    * SPARQL provider, then the workspace lays them out. Note that when using this seed method reactodia will request data

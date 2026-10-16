@@ -51,6 +51,18 @@ export class GraphwiseReactodiaSteps {
     return cy.window().its('cancelledQueries');
   }
 
+  static setTextSearchListener() {
+    cy.getByTestId('set-text-search-listener').click();
+  }
+
+  static setThrowingTextSearchListener() {
+    cy.getByTestId('set-throwing-text-search-listener').click();
+  }
+
+  static getTextSearches() {
+    return cy.window().its('textSearches');
+  }
+
   static setProviderSettings() {
     cy.getByTestId('set-provider-settings').click();
   }
