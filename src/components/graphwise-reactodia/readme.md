@@ -30,9 +30,9 @@ wrapper and is supplied through the `providerSettings` prop.
 
 ## Events
 
-| Event                     | Description                                                         | Type                                                      |
-| ------------------------- | ------------------------------------------------------------------- | --------------------------------------------------------- |
-| `graphwiseReactodiaEvent` | Fires for every event to the host, differentiated by `detail.type`. | `CustomEvent<{ type: EventType; payload: ErrorReport; }>` |
+| Event                     | Description                                                         | Type                                                                                                                     |
+| ------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `graphwiseReactodiaEvent` | Fires for every event to the host, differentiated by `detail.type`. | `CustomEvent<{ type: EventType.ERROR; payload: ErrorReport; } \| { type: EventType.TEXT_SEARCH; payload?: undefined; }>` |
 
 
 ## CSS Custom Properties

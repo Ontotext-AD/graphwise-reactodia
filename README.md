@@ -73,9 +73,10 @@ only informs the host and it bubbles. Its name is exported as `GRAPHWISE_REACTOD
 
 `detail` is an `EventDetail`: `{type, payload}`. `type` is an `EventType`; `payload` depends on it:
 
-| `type`  | `payload`       |
-|---------|-----------------|
-| `error` | `ErrorReport`   |
+| `type`        | `payload`     | Dispatched when                     |
+|---------------|---------------|-------------------------------------|
+| `error`       | `ErrorReport` | An error is reported.               |
+| `text-search` | none          | The user searches entities by text. |
 
 Checking `type` narrows `payload`:
 
