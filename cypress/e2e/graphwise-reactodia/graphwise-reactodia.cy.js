@@ -335,4 +335,56 @@ describe('graphwise-reactodia', () => {
     // And nothing is reported to the host
     GraphwiseReactodiaSteps.getReportedErrors().should('be.empty');
   });
+
+  it('Should notify the host of each entity text search', () => {
+    // Given a workspace with a text search listener
+    GraphwiseReactodiaSteps.setQueryFunction();
+    GraphwiseReactodiaSteps.setTextSearchListener();
+    GraphwiseReactodiaSteps.setProviderSettings();
+    GraphwiseReactodiaSteps.setRepository();
+
+    // When the user searches entities by text
+    GraphwiseReactodiaSteps.getSearchInput().type('alice');
+    GraphwiseReactodiaSteps.openEntitiesSearch();
+
+    // Then the host is notified of the search
+    GraphwiseReactodiaSteps.getTextSearches().should('be.greaterThan', 0);
+  });
+
+  it('Should search without a text search listener', () => {
+    // Given a workspace without a text search listener
+    GraphwiseReactodiaSteps.provideRequiredProps();
+
+    // When the user searches entities by text
+    GraphwiseReactodiaSteps.getSearchInput().type('alice');
+    GraphwiseReactodiaSteps.openEntitiesSearch();
+
+    // Then the search is sent
+    GraphwiseReactodiaSteps.getSparqlQueries().should((queries) => {
+      expect(queries.some((query) => query.includes('alice')), 'a query with the search text').to.be.true;
+    });
+    // And nothing is reported to the host
+    GraphwiseReactodiaSteps.getReportedErrors().should('be.empty');
+  });
+
+  it('Should search when the text search listener throws', () => {
+    // Given a workspace with a text search listener that throws
+    GraphwiseReactodiaSteps.setQueryFunction();
+    GraphwiseReactodiaSteps.setThrowingTextSearchListener();
+    GraphwiseReactodiaSteps.setProviderSettings();
+    GraphwiseReactodiaSteps.setRepository();
+
+    // When the user searches entities by text
+    GraphwiseReactodiaSteps.getSearchInput().type('alice');
+    GraphwiseReactodiaSteps.openEntitiesSearch();
+
+    // Then the search is sent
+    GraphwiseReactodiaSteps.getSparqlQueries().should((queries) => {
+      expect(queries.some((query) => query.includes('alice')), 'a query with the search text').to.be.true;
+    });
+    // And the failed listener is reported to the host
+    GraphwiseReactodiaSteps.shouldReportError('text-search-listener', 'Text search listener failed');
+    // And the search is not reported as failed
+    GraphwiseReactodiaSteps.shouldNotReportError('data-fetch');
+  });
 });

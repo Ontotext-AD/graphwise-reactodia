@@ -95,6 +95,7 @@ element.addEventListener('graphwiseReactodiaError', (event) => {
 | `diagram-import`        | The uploaded file was rejected or its import failed.       |
 | `local-diagram-read`    | Reading the diagram from local storage failed.             |
 | `local-diagram-save`    | Saving the diagram in local storage failed.                |
+| `text-search-listener`  | The host's `config.onTextSearch` threw.                    |
 
 Failed PNG/SVG exports and printing are not reported.
 

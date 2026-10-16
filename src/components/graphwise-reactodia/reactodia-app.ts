@@ -3,8 +3,10 @@ import {createRoot, Root} from 'react-dom/client';
 import {
   DataDiagramModel,
   DataProvider,
+  DataProviderLookupParams,
   DecoratedDataProvider,
   DecoratedDataProviderOptions,
+  DecoratedMethodName,
   DefaultWorkspace,
   SerializedDiagram,
   SparqlDataProvider,
@@ -14,6 +16,7 @@ import {
 } from '@reactodia/workspace';
 import {blockingDefaultLayout} from '@reactodia/workspace/layout-sync';
 import {ReactodiaAppProps} from './models/reactodia-app-props';
+import {ReactodiaConfig} from './models/reactodia-config';
 import {Triple} from './models/triple';
 import {TRANSLATIONS} from './i18n/translations';
 import {LanguageKey} from './i18n/language-key';
@@ -62,6 +65,21 @@ const eventService = service(EventService);
 const errorService = service(ErrorService);
 
 /**
+ * Calls the host's {@link ReactodiaConfig.onTextSearch} for a text lookup. A failing listener is reported and does
+ * not stop the lookup.
+ */
+function notifyTextSearch(config: ReactodiaConfig, method: DecoratedMethodName, params: DataProviderLookupParams): void {
+  if (method !== 'lookup' || !params.text) {
+    return;
+  }
+  try {
+    config.onTextSearch?.();
+  } catch (error) {
+    errorService.report(ErrorCode.TEXT_SEARCH_LISTENER, error);
+  }
+}
+
+/**
  * Reports every failed data provider call, unless the call was aborted, and passes the failure on to the caller.
  */
 const reportDataFetchError: DecoratedDataProviderOptions['decorator'] = async (_method, params, body) => {
@@ -78,7 +96,7 @@ const reportDataFetchError: DecoratedDataProviderOptions['decorator'] = async (_
 /**
  * Builds a Reactodia {@link SparqlDataProvider} for the given endpoint using the supplied
  * query preset. The host owns the query configuration and always passes it in via props.
- * The provider is decorated, so its failed calls are reported.
+ * The provider is decorated, so its failed calls are reported and its text lookups notify the host.
  */
 function createDataProvider(props: ReactodiaAppProps): DataProvider {
   const {currentRepository, config, providerSettings} = props;
@@ -87,7 +105,13 @@ function createDataProvider(props: ReactodiaAppProps): DataProvider {
     queryMethod: 'POST',
     queryFunction: config.queryFunction
   }, providerSettings);
-  return new DecoratedDataProvider({baseProvider, decorator: reportDataFetchError});
+  return new DecoratedDataProvider({
+    baseProvider,
+    decorator: (method, params, body) => {
+      notifyTextSearch(config, method, params);
+      return reportDataFetchError(method, params, body);
+    }
+  });
 }
 
 /**
