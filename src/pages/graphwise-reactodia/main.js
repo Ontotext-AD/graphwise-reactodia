@@ -42,8 +42,12 @@ function hangingQueryFunction(params) {
 const reportedErrors = [];
 window.reportedErrors = reportedErrors;
 // The listener is on the document, since the tests replace the element.
-document.addEventListener('graphwiseReactodiaError', (event) => {
-  reportedErrors.push({code: event.detail.code, message: event.detail.error.message});
+document.addEventListener('graphwiseReactodiaEvent', (event) => {
+  if (event.detail.type !== 'error') {
+    return;
+  }
+  const {code, error} = event.detail.payload;
+  reportedErrors.push({code, message: error.message});
 });
 
 const SEED_NODES = ['http://example.com/alice', 'http://example.com/bob'];

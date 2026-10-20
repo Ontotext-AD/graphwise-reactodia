@@ -66,19 +66,41 @@ persisted in the DB, so they can't be fetched lazily and must be supplied by the
 
 When both are supplied `seedGraph` takes precedence over `seedIris`.
 
-## Error handling
+## Events
 
-The element dispatches a `graphwiseReactodiaError` DOM event for every error it reports; the codes below
-list them. The event only informs the host and it bubbles. Its name is exported as
-`GRAPHWISE_REACTODIA_ERROR_EVENT`.
+The element sends every event to the host through one DOM event, `graphwiseReactodiaEvent`. The event
+only informs the host and it bubbles. Its name is exported as `GRAPHWISE_REACTODIA_EVENT`.
 
-```js
-element.addEventListener('graphwiseReactodiaError', (event) => {
-  const {code, error} = event.detail;
+`detail` is an `EventDetail`: `{type, payload}`. `type` is an `EventType`; `payload` depends on it:
+
+| `type`  | `payload`       |
+|---------|-----------------|
+| `error` | `ErrorReport`   |
+
+Checking `type` narrows `payload`:
+
+```ts
+element.addEventListener(GRAPHWISE_REACTODIA_EVENT, (event) => {
+  const detail = (event as CustomEvent<EventDetail>).detail;
+  if (detail.type === EventType.ERROR) {
+    const {code, error} = detail.payload; // an ErrorReport
+  }
 });
 ```
 
-`detail` is an `ErrorReport`:
+`EventDetail<T>` is one event, e.g. for a handler of a single type:
+
+```ts
+function onError(detail: EventDetail<EventType.ERROR>): void {
+  const {code, error} = detail.payload;
+}
+```
+
+## Error handling
+
+The element dispatches an `error` event for every error it reports; the codes below list them.
+
+`payload` is an `ErrorReport`:
 
 | Field   | Description                                                                             |
 |---------|-----------------------------------------------------------------------------------------|

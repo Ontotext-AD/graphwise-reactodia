@@ -11,8 +11,9 @@ import {newSpecPage} from '@stencil/core/testing';
 import type {SparqlDataProviderSettings, SparqlQueryFunction} from '@reactodia/workspace';
 import {GraphwiseReactodia} from './graphwise-reactodia';
 import {ReactodiaConfig} from './models/reactodia-config';
-import {GRAPHWISE_REACTODIA_ERROR_EVENT, ErrorReport} from './models/error/error-report';
 import {ErrorCode} from './models/error/error-code';
+import {EventDetail, GRAPHWISE_REACTODIA_EVENT} from './models/event/event-detail';
+import {EventType} from './models/event/event-type';
 import {service} from './providers/service/service-inject';
 import {ErrorService} from './services/error/error.service';
 
@@ -29,9 +30,9 @@ interface RequiredProps {
 
 /**
  * Mounts `<graphwise-reactodia>` with the given props already set, as a host that wires every
- * input before attaching the element would. The errors the element dispatches go to `onError`.
+ * input before attaching the element would. The events the element dispatches go to `onEvent`.
  */
-function renderWith(props: RequiredProps, onError?: (event: CustomEvent<ErrorReport>) => void) {
+function renderWith(props: RequiredProps, onEvent?: (event: CustomEvent<EventDetail>) => void) {
   return newSpecPage({
     components: [GraphwiseReactodia],
     template: () => (
@@ -39,57 +40,60 @@ function renderWith(props: RequiredProps, onError?: (event: CustomEvent<ErrorRep
         currentRepository={props.currentRepository}
         config={props.config}
         providerSettings={props.providerSettings}
-        onGraphwiseReactodiaError={onError}
+        onGraphwiseReactodiaEvent={onEvent}
       ></graphwise-reactodia>
     ),
   });
 }
 
 /** The `{code, message}` of every error event the handler received. */
-function reportedErrors(onError: jest.Mock): {code: ErrorCode; message: string}[] {
-  return onError.mock.calls.map(([event]: [CustomEvent<ErrorReport>]) => ({
-    code: event.detail.code,
-    message: (event.detail.error as Error).message,
-  }));
+function reportedErrors(onEvent: jest.Mock): {code: ErrorCode; message: string}[] {
+  return onEvent.mock.calls
+    .map(([event]: [CustomEvent<EventDetail>]) => event.detail)
+    .filter((detail) => detail.type === EventType.ERROR)
+    .map(({payload}) => ({
+      code: payload.code,
+      message: (payload.error as Error).message,
+    }));
 }
 
 describe('graphwise-reactodia', () => {
   describe('prop validation', () => {
     test('throws when currentRepository is missing', async () => {
       // When the element is rendered without a repository
-      const onError = jest.fn();
-      const render = renderWith({config: CONFIG, providerSettings: PROVIDER_SETTINGS}, onError);
+      const onEvent = jest.fn();
+      const render = renderWith({config: CONFIG, providerSettings: PROVIDER_SETTINGS}, onEvent);
 
       // Then it fails with a clear error
       await expect(render).rejects.toThrow('currentRepository is required');
       // And the error is reported to the host
-      expect(reportedErrors(onError)).toEqual([{code: ErrorCode.MISSING_REQUIRED_PROP, message: 'currentRepository is required'}]);
+      expect(reportedErrors(onEvent)).toEqual([{code: ErrorCode.MISSING_REQUIRED_PROP, message: 'currentRepository is required'}]);
     });
 
     test('throws when config.queryFunction is missing', async () => {
       // When the element is rendered with a config that has no query function
-      const onError = jest.fn();
+      const onEvent = jest.fn();
       const render = renderWith({
         currentRepository: REPOSITORY,
         config: {} as ReactodiaConfig,
         providerSettings: PROVIDER_SETTINGS,
-      }, onError);
+      }, onEvent);
 
       // Then it fails with a clear error
       await expect(render).rejects.toThrow('config.queryFunction is required');
       // And the error is reported to the host
-      expect(reportedErrors(onError)).toEqual([{code: ErrorCode.MISSING_REQUIRED_PROP, message: 'config.queryFunction is required'}]);
+      expect(reportedErrors(onEvent)).toEqual([{code: ErrorCode.MISSING_REQUIRED_PROP, message: 'config.queryFunction is required'}]);
     });
 
     test('throws when providerSettings is missing', async () => {
       // When the element is rendered without data provider settings
-      const onError = jest.fn();
-      const render = renderWith({currentRepository: REPOSITORY, config: CONFIG}, onError);
+      const onEvent = jest.fn();
+      const render = renderWith({currentRepository: REPOSITORY, config: CONFIG}, onEvent);
 
       // Then it fails with a clear error instead of falling back to a default preset
       await expect(render).rejects.toThrow('providerSettings is required');
       // And the error is reported to the host
-      expect(reportedErrors(onError)).toEqual([{code: ErrorCode.MISSING_REQUIRED_PROP, message: 'providerSettings is required'}]);
+      expect(reportedErrors(onEvent)).toEqual([{code: ErrorCode.MISSING_REQUIRED_PROP, message: 'providerSettings is required'}]);
     });
   });
 
@@ -98,31 +102,32 @@ describe('graphwise-reactodia', () => {
 
     test('dispatches a reported error on the element', async () => {
       // Given a rendered element
-      const onError = jest.fn();
-      await renderWith(ALL_PROPS, onError);
+      const onEvent = jest.fn();
+      await renderWith(ALL_PROPS, onEvent);
       const error = new Error('Query failed');
 
       // When an error is reported
       service(ErrorService).report(ErrorCode.DATA_FETCH, error);
 
       // Then the element dispatches it
-      expect(onError).toHaveBeenCalledTimes(1);
-      const event: CustomEvent<ErrorReport> = onError.mock.calls[0][0];
-      expect(event.type).toBe(GRAPHWISE_REACTODIA_ERROR_EVENT);
-      expect(event.detail).toEqual({code: ErrorCode.DATA_FETCH, error});
+      expect(onEvent).toHaveBeenCalledTimes(1);
+      const event: CustomEvent<EventDetail> = onEvent.mock.calls[0][0];
+      expect(event.type).toBe(GRAPHWISE_REACTODIA_EVENT);
+      expect(event.bubbles).toBe(true);
+      expect(event.detail).toEqual({type: EventType.ERROR, payload: {code: ErrorCode.DATA_FETCH, error}});
     });
 
     test('dispatches nothing after the element is disconnected', async () => {
       // Given a rendered element that is removed from the page
-      const onError = jest.fn();
-      const page = await renderWith(ALL_PROPS, onError);
+      const onEvent = jest.fn();
+      const page = await renderWith(ALL_PROPS, onEvent);
       page.root?.remove();
 
       // When an error is reported
       service(ErrorService).report(ErrorCode.DATA_FETCH, new Error('Query failed'));
 
       // Then the element dispatches nothing
-      expect(onError).not.toHaveBeenCalled();
+      expect(onEvent).not.toHaveBeenCalled();
     });
   });
 });
