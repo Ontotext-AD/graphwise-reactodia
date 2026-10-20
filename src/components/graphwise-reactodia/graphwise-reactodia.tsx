@@ -4,14 +4,16 @@ import {SparqlDataProviderSettings} from '@reactodia/workspace';
 import {mountReactodia, unmountReactodia, updateReactodia} from './reactodia-app';
 import {LanguageKey} from './i18n/language-key';
 import {ReactodiaConfig} from './models/reactodia-config';
-import {ErrorReport} from './models/error/error-report';
 import {ErrorCode} from './models/error/error-code';
+import {EventDetail} from './models/event/event-detail';
 import {SubscriptionList} from './models/subscription-list';
 import {service} from './providers/service/service-inject';
 import {ErrorService} from './services/error/error.service';
+import {EventService} from './services/event/event.service';
 import {resetColors} from './styles/type-style.resolver';
 
 const errorService = service(ErrorService);
+const eventService = service(EventService);
 
 /**
  * A web component that renders a graph with the Reactodia workspace.
@@ -68,10 +70,10 @@ export class GraphwiseReactodia {
   @Prop() theme?: 'light' | 'dark';
 
   /**
-   * Fires, when an error has occurred. The host decides how to handle it.
+   * Fires for every event to the host, differentiated by `detail.type`.
    */
-  @Event({eventName: 'graphwiseReactodiaError'})
-  errorEmitter!: EventEmitter<ErrorReport>;
+  @Event({eventName: 'graphwiseReactodiaEvent'})
+  eventEmitter!: EventEmitter<EventDetail>;
 
   private reactRoot?: Root;
 
@@ -105,7 +107,7 @@ export class GraphwiseReactodia {
   }
 
   connectedCallback(): void {
-    this.subscribeToErrors();
+    this.subscribeToEvents();
     this.renderGraph();
   }
 
@@ -128,8 +130,8 @@ export class GraphwiseReactodia {
     );
   }
 
-  private subscribeToErrors() {
-    this.subscriptions.add(errorService.subscribe((error) => this.errorEmitter.emit(error)));
+  private subscribeToEvents() {
+    this.subscriptions.add(eventService.subscribe((detail) => this.eventEmitter.emit(detail)));
   }
 
   private renderGraph(isReloading?: boolean): void {

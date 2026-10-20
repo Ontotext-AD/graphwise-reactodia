@@ -1,11 +1,6 @@
 import {ErrorCode} from './error-code';
 
 /**
- * Name of the DOM event the `graphwise-reactodia` element dispatches for every reported error.
- */
-export const GRAPHWISE_REACTODIA_ERROR_EVENT = 'graphwiseReactodiaError';
-
-/**
  * A failure the wrapper announces to the host.
  */
 export interface ErrorReport {

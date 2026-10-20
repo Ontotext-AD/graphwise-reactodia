@@ -3,6 +3,9 @@ import {WindowService} from '../window/window.service';
 import {ServiceProvider} from '../../providers/service/service.provider';
 import {Subscription} from '../../models/subscription';
 import {CLEAR_DIAGRAM_STORAGE_EVENT} from '../../models/clear-diagram-storage-event';
+import {EventDetail} from '../../models/event/event-detail';
+import {EventType} from '../../models/event/event-type';
+import {ErrorCode} from '../../models/error/error-code';
 
 describe('EventService', () => {
   let eventService: EventService;
@@ -77,5 +80,54 @@ describe('EventService', () => {
 
     // Then the handler is not invoked
     expect(onClear).not.toHaveBeenCalled();
+  });
+
+  describe('events', () => {
+    const DETAIL: EventDetail = {type: EventType.ERROR, payload: {code: ErrorCode.DATA_FETCH, error: new Error('Query failed')}};
+    let onEvent: jest.Mock<void, [EventDetail]>;
+
+    beforeEach(() => {
+      onEvent = jest.fn();
+    });
+
+    test('should deliver an emitted detail to the subscriber', () => {
+      // Given a subscriber
+      eventService.subscribe(onEvent);
+
+      // When a detail is emitted
+      eventService.emit(DETAIL);
+
+      // Then the subscriber receives it unchanged
+      expect(onEvent).toHaveBeenCalledTimes(1);
+      expect(onEvent).toHaveBeenCalledWith(DETAIL);
+    });
+
+    test('should stop delivering after unsubscribe', () => {
+      // Given a subscriber that unsubscribed
+      const unsubscribe = eventService.subscribe(onEvent);
+      unsubscribe();
+
+      // When a detail is emitted
+      eventService.emit(DETAIL);
+
+      // Then the subscriber is not called
+      expect(onEvent).not.toHaveBeenCalled();
+    });
+
+    test('should deliver only to the latest subscriber', () => {
+      // Given a subscriber replaced by another one
+      const unsubscribe = eventService.subscribe(onEvent);
+      const onLatestEvent = jest.fn();
+      eventService.subscribe(onLatestEvent);
+      // And the replaced subscriber unsubscribes
+      unsubscribe();
+
+      // When a detail is emitted
+      eventService.emit(DETAIL);
+
+      // Then only the latest subscriber receives it
+      expect(onEvent).not.toHaveBeenCalled();
+      expect(onLatestEvent).toHaveBeenCalledTimes(1);
+    });
   });
 });

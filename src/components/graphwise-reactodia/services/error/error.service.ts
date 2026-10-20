@@ -1,8 +1,9 @@
 import {Service} from '../../providers/service/service';
-import {Subscription} from '../../models/subscription';
-import {ErrorCallback} from '../../models/error/error-callback';
+import {service} from '../../providers/service/service-inject';
 import {ErrorCause} from '../../models/error/error-cause';
 import {ErrorCode} from '../../models/error/error-code';
+import {EventType} from '../../models/event/event-type';
+import {EventService} from '../event/event.service';
 
 /**
  * Service that collects the failures of the wrapper and the fork, so they can be announced to the host.
@@ -13,7 +14,7 @@ export class ErrorService {
 
   private static readonly ABORT_ERROR_NAME = 'AbortError';
 
-  private callback?: ErrorCallback;
+  private readonly eventService = service(EventService);
   private readonly reported = new WeakSet<object>();
 
   /**
@@ -44,22 +45,7 @@ export class ErrorService {
       return;
     }
     causes.forEach((cause) => this.reported.add(cause));
-    this.callback?.({code, error: thrown});
-  }
-
-  /**
-   * Subscribes to the reported errors, replacing the previous subscriber.
-   *
-   * @param callback Called with every reported error.
-   * @returns A {@link Subscription} that, when called, removes the callback, unless it has already been replaced.
-   */
-  subscribe(callback: ErrorCallback): Subscription {
-    this.callback = callback;
-    return () => {
-      if (this.callback === callback) {
-        this.callback = undefined;
-      }
-    };
+    this.eventService.emit({type: EventType.ERROR, payload: {code, error: thrown}});
   }
 
   /**

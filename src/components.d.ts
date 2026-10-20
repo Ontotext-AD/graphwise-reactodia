@@ -8,11 +8,11 @@ import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 import { ReactodiaConfig } from "./components/graphwise-reactodia/models/reactodia-config";
 import { LanguageKey } from "./components/graphwise-reactodia/i18n/language-key";
 import { SparqlDataProviderSettings } from "@reactodia/workspace";
-import { ErrorReport } from "./components/graphwise-reactodia/models/error/error-report";
+import { EventDetail } from "./components/graphwise-reactodia/models/event/event-detail";
 export { ReactodiaConfig } from "./components/graphwise-reactodia/models/reactodia-config";
 export { LanguageKey } from "./components/graphwise-reactodia/i18n/language-key";
 export { SparqlDataProviderSettings } from "@reactodia/workspace";
-export { ErrorReport } from "./components/graphwise-reactodia/models/error/error-report";
+export { EventDetail } from "./components/graphwise-reactodia/models/event/event-detail";
 export namespace Components {
     /**
      * A web component that renders a graph with the Reactodia workspace.
@@ -53,7 +53,7 @@ export interface GraphwiseReactodiaCustomEvent<T> extends CustomEvent<T> {
 }
 declare global {
     interface HTMLGraphwiseReactodiaElementEventMap {
-        "graphwiseReactodiaError": ErrorReport;
+        "graphwiseReactodiaEvent": EventDetail;
     }
     /**
      * A web component that renders a graph with the Reactodia workspace.
@@ -107,9 +107,9 @@ declare namespace LocalJSX {
          */
         "language"?: LanguageKey;
         /**
-          * Fires, when an error has occurred. The host decides how to handle it.
+          * Fires for every event to the host, differentiated by `detail.type`.
          */
-        "onGraphwiseReactodiaError"?: (event: GraphwiseReactodiaCustomEvent<ErrorReport>) => void;
+        "onGraphwiseReactodiaEvent"?: (event: GraphwiseReactodiaCustomEvent<EventDetail>) => void;
         /**
           * Query preset for the SPARQL data provider, owned and configured by the host. A DOM property (an object, not an attribute) passed in from outside the wrapper. Required: the wrapper has no default preset and throws when it is missing. Changing it rebuilds the data provider and reloads the graph with it, keeping the current diagram.
          */
