@@ -30,8 +30,8 @@ wrapper and is supplied through the `providerSettings` prop.
 
 ## Events
 
-| Event                     | Description                                                                           | Type                                                      |
-| ------------------------- | ------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| Event                     | Description                                                         | Type                                                      |
+| ------------------------- | ------------------------------------------------------------------- | --------------------------------------------------------- |
 | `graphwiseReactodiaEvent` | Fires for every event to the host, differentiated by `detail.type`. | `CustomEvent<{ type: EventType; payload: ErrorReport; }>` |
 
 
