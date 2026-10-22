@@ -51,6 +51,10 @@ export class GraphwiseReactodiaSteps {
     return cy.window().its('cancelledQueries');
   }
 
+  static getTextSearches() {
+    return cy.window().its('textSearches');
+  }
+
   static setProviderSettings() {
     cy.getByTestId('set-provider-settings').click();
   }

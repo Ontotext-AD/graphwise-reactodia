@@ -50,6 +50,14 @@ document.addEventListener('graphwiseReactodiaEvent', (event) => {
   reportedErrors.push({code, message: error.message});
 });
 
+// The text search events are counted.
+window.textSearches = 0;
+document.addEventListener('graphwiseReactodiaEvent', (event) => {
+  if (event.detail.type === 'text-search') {
+    window.textSearches++;
+  }
+});
+
 const SEED_NODES = ['http://example.com/alice', 'http://example.com/bob'];
 
 const SEED_GRAPH = [

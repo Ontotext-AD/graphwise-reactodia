@@ -335,4 +335,16 @@ describe('graphwise-reactodia', () => {
     // And nothing is reported to the host
     GraphwiseReactodiaSteps.getReportedErrors().should('be.empty');
   });
+
+  it('Should dispatch a text-search event for each entity text search', () => {
+    // Given a workspace
+    GraphwiseReactodiaSteps.provideRequiredProps();
+
+    // When the user searches entities by text
+    GraphwiseReactodiaSteps.getSearchInput().type('alice');
+    GraphwiseReactodiaSteps.openEntitiesSearch();
+
+    // Then a text-search event is dispatched
+    GraphwiseReactodiaSteps.getTextSearches().should('be.greaterThan', 0);
+  });
 });

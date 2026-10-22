@@ -8,7 +8,8 @@ export const GRAPHWISE_REACTODIA_EVENT = 'graphwiseReactodiaEvent';
 
 /**
  * The payload of each {@link EventType}. It is the single place that ties an event type to its payload, so
- * adding an event is one {@link EventType} value and one entry here.
+ * adding an event is one {@link EventType} value and one entry here. An event without a payload maps to `void`
+ * and is emitted without `payload`.
  *
  * @example
  * ```ts
@@ -16,11 +17,14 @@ export const GRAPHWISE_REACTODIA_EVENT = 'graphwiseReactodiaEvent';
  *   [EventType.ERROR]: ErrorReport;
  *   // A new event:
  *   [EventType.NEW_TYPE]: NewTypePayload;
+ *   // A new event without a payload:
+ *   [EventType.NEW_SIGNAL]: void;
  * }
  * ```
  */
 interface EventPayloadMap {
   [EventType.ERROR]: ErrorReport;
+  [EventType.TEXT_SEARCH]: void;
 }
 
 /**
@@ -43,5 +47,7 @@ interface EventPayloadMap {
  * ```
  */
 export type EventDetail<T extends EventType = EventType> = {
-  [K in T]: {type: K; payload: EventPayloadMap[K]};
+  [K in T]: EventPayloadMap[K] extends void
+    ? {type: K; payload?: undefined}
+    : {type: K; payload: EventPayloadMap[K]};
 }[T];
