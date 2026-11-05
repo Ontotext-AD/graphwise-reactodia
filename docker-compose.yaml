@@ -18,6 +18,9 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+      # `npm run start` installs and builds the fork before the dev server starts, which can take longer than the
+      # retries above. Failed checks during this period don't count.
+      start_period: 5m
 
   cypress:
     image: cypress/included:15.17.0
