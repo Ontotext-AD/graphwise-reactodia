@@ -29,7 +29,7 @@ import {EventType} from './models/event/event-type';
 import {Subscription} from './models/subscription';
 import {SubscriptionList} from './models/subscription-list';
 import {resolveTypeStyle} from './styles/type-style.resolver';
-import {GraphwiseMenu} from './menu/graphwise-menu';
+import {toWorkspaceProps, UiConfigProps} from './ui-config/ui-config-mapper';
 
 /**
  * Reactodia ships English as its built-in default bundle, so the English bundle only adds our own keys.
@@ -58,6 +58,12 @@ let workspaceContext: WorkspaceContext | null = null;
 const subscriptions = new SubscriptionList();
 
 let diagramStorageSubscription: Subscription | undefined;
+
+/**
+ * The `DefaultWorkspace` props from the host's UI configuration. Kept across reloads, so unknown values are reported
+ * once, and cleared in {@link unmountReactodia}.
+ */
+let uiConfigProps: UiConfigProps | undefined;
 
 const diagramService = service(DiagramService);
 const diagramStorageService = service(DiagramStorageService);
@@ -256,9 +262,7 @@ function ReactodiaApp(props: ReactodiaAppProps) {
     } as never,
     createElement(DefaultWorkspace, {
       colorScheme: props.theme,
-      menu: createElement(GraphwiseMenu),
-      // place Undo/redo/layout actions in top right corner.
-      actionsToolbar: {dock: 'ne'}
+      ...uiConfigProps
     })
   );
 }
@@ -267,6 +271,7 @@ function ReactodiaApp(props: ReactodiaAppProps) {
  * Mounts the Reactodia application into the given container and returns the React root.
  */
 export function mountReactodia(container: HTMLElement, props: ReactodiaAppProps): Root {
+  uiConfigProps ??= toWorkspaceProps(props.config.ui);
   const root = createRoot(container);
   root.render(createElement(ReactodiaApp, props));
   return root;
@@ -303,5 +308,6 @@ export function exportReactodiaLayout(): SerializedDiagram | undefined {
  */
 export function unmountReactodia(root: Root): void {
   subscriptions.unsubscribeAll();
+  uiConfigProps = undefined;
   root.unmount();
 }

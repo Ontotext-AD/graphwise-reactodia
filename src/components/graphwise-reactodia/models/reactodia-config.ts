@@ -1,5 +1,6 @@
-import {SparqlQueryFunction} from '@reactodia/workspace';
+import {SparqlQueryFunction} from './sparql/sparql-query-function';
 import {Triple} from './triple';
+import {UiConfig} from './ui/ui-config';
 
 /**
  * Host-supplied configuration read once when the workspace mounts (not reactive).
@@ -31,4 +32,9 @@ export interface ReactodiaConfig {
    * computed and not persisted in the repository
    */
   seedGraph?: Triple[];
+
+  /**
+   * A partial UI configuration, merged over the default UI configuration. JSON-serializable.
+   */
+  ui?: UiConfig;
 }

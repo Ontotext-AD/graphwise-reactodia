@@ -347,4 +347,47 @@ describe('graphwise-reactodia', () => {
     // Then a text-search event is dispatched
     GraphwiseReactodiaSteps.getTextSearches().should('be.greaterThan', 0);
   });
+
+  it('Should show the default UI configuration when the host passes none', () => {
+    // When a seeded workspace mounts without a UI configuration
+    GraphwiseReactodiaSteps.setSeed();
+    GraphwiseReactodiaSteps.provideRequiredProps();
+
+    // Then the actions toolbar is docked bottom left
+    GraphwiseReactodiaSteps.getUndoActionDockedTo('sw').should('exist');
+
+    // When a node is selected
+    GraphwiseReactodiaSteps.selectFirstElement();
+
+    // Then the node actions are shown, the link included
+    GraphwiseReactodiaSteps.getRemoveNodeAction().should('exist');
+    GraphwiseReactodiaSteps.getLinkNodeAction().should('exist');
+  });
+
+  it('Should apply the UI configuration the host passes', () => {
+    // When a seeded workspace mounts with a host UI configuration
+    GraphwiseReactodiaSteps.setSeed();
+    GraphwiseReactodiaSteps.setHostUi();
+    GraphwiseReactodiaSteps.provideRequiredProps();
+
+    // Then the actions toolbar is docked top right
+    GraphwiseReactodiaSteps.getUndoActionDockedTo('ne').should('exist');
+
+    // When a node is selected
+    GraphwiseReactodiaSteps.selectFirstElement();
+
+    // Then the passed node actions are shown, without the link
+    GraphwiseReactodiaSteps.getRemoveNodeAction().should('exist');
+    GraphwiseReactodiaSteps.getLinkNodeAction().should('not.exist');
+  });
+
+  it('Should hide the main menu when the host passes no menu items', () => {
+    // When the workspace mounts with an empty menu
+    GraphwiseReactodiaSteps.setEmptyMenuUi();
+    GraphwiseReactodiaSteps.provideRequiredProps();
+
+    // Then the search is shown without the menu toggle
+    GraphwiseReactodiaSteps.getSearchInput().should('exist');
+    GraphwiseReactodiaSteps.getMainMenuToggle().should('not.exist');
+  });
 });

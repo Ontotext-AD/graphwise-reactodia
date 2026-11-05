@@ -66,6 +66,45 @@ persisted in the DB, so they can't be fetched lazily and must be supplied by the
 
 When both are supplied `seedGraph` takes precedence over `seedIris`.
 
+## UI configuration
+
+`config.ui` (`UiConfig`) changes the default UI configuration. It is JSON and read once on mount. It is partial and
+merged over the default: objects are merged key by key, lists replace the default whole.
+
+The default UI configuration:
+
+```ts
+{
+  mainToolbar: {dock: ToolbarDock.NW},
+  actionsToolbar: {dock: ToolbarDock.SW},
+  menu: {items: [CLEAR_ALL, EXPORT_PNG, EXPORT_SVG, PRINT, EXPORT_JSON, IMPORT_JSON]},
+  nodeActions: [GROUP, REMOVE, EXPAND, OPEN_LINK, CONNECTIONS, ADD_TO_FILTER, ANNOTATE, ESTABLISH_LINK]
+}
+```
+
+| Field            | Description                                                                        |
+|------------------|------------------------------------------------------------------------------------|
+| `mainToolbar`    | `ToolbarPosition` of the toolbar with the menu and the search.                     |
+| `actionsToolbar` | `ToolbarPosition` of the toolbar with undo, redo and layout.                       |
+| `menu.items`     | `MenuItem`s of the main menu, in order. An empty list hides the menu.              |
+| `nodeActions`    | `NodeAction`s shown around a selected node.                                        |
+
+`ToolbarPosition` is `{dock?: ToolbarDock, offsetX?: number, offsetY?: number}`.
+
+E.g. the actions toolbar at the top right, without the link node action:
+
+```ts
+element.config = {
+  queryFunction,
+  ui: {
+    actionsToolbar: {dock: ToolbarDock.NE},
+    nodeActions: [GROUP, REMOVE, EXPAND, CONNECTIONS, ADD_TO_FILTER, ANNOTATE, ESTABLISH_LINK]
+  }
+};
+```
+
+An unknown value is skipped and reported as `unknown-ui-config`; an unknown dock keeps the default toolbar position.
+
 ## Events
 
 The element sends every event to the host through one DOM event, `graphwiseReactodiaEvent`. The event
@@ -118,6 +157,7 @@ The element dispatches an `error` event for every error it reports; the codes be
 | `diagram-import`        | The uploaded file was rejected or its import failed.       |
 | `local-diagram-read`    | Reading the diagram from local storage failed.             |
 | `local-diagram-save`    | Saving the diagram in local storage failed.                |
+| `unknown-ui-config`     | `config.ui` has an unknown value, which is skipped.        |
 
 Failed PNG/SVG exports and printing are not reported.
 

@@ -139,6 +139,37 @@ export class GraphwiseReactodiaSteps {
     cy.getByTestId('set-seed-graph').click();
   }
 
+  static setHostUi() {
+    cy.getByTestId('set-host-ui').click();
+  }
+
+  static setEmptyMenuUi() {
+    cy.getByTestId('set-empty-menu-ui').click();
+  }
+
+  /**
+   * The undo action, inside the toolbar docked to the given direction.
+   */
+  static getUndoActionDockedTo(dock) {
+    return this.getComponent().find(`.reactodia-viewport-dock--dock-${dock} .reactodia-toolbar-action__undo`);
+  }
+
+  static getMainMenuToggle() {
+    return this.getComponent().find('.reactodia-toolbar__menu .reactodia-dropdown-menu__toggle');
+  }
+
+  static selectFirstElement() {
+    this.getElements().first().click();
+  }
+
+  static getRemoveNodeAction() {
+    return this.getCanvas().find('.reactodia-selection-action__remove');
+  }
+
+  static getLinkNodeAction() {
+    return this.getCanvas().find('.reactodia-selection-action__link');
+  }
+
   static switchToFrench() {
     cy.getByTestId('set-language-fr').click();
   }

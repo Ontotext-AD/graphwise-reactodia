@@ -124,6 +124,20 @@ function setSeedGraph() {
   reactodia.config = {...reactodia.config, seedGraph: SEED_GRAPH};
 }
 
+// A partial host UI configuration, merged over the default.
+const HOST_UI = {
+  actionsToolbar: {dock: 'ne'},
+  nodeActions: ['group', 'remove', 'expand', 'connections', 'add-to-filter', 'annotate', 'establish-link'],
+};
+
+function setHostUi() {
+  reactodia.config = {...reactodia.config, ui: HOST_UI};
+}
+
+function setEmptyMenuUi() {
+  reactodia.config = {...reactodia.config, ui: {menu: {items: []}}};
+}
+
 function setRepository(repository) {
   reactodia.currentRepository = repository;
 }
