@@ -25,7 +25,7 @@ export namespace Components {
      */
     interface GraphwiseReactodia {
         /**
-          * Host-supplied configuration: the SPARQL `queryFunction` transport and an optional `seed` set of entities to pre-populate the canvas with. A DOM property (an object, not an attribute) passed in from outside the wrapper.  Read once on mount; not watched, as it only sets up the data source and initial canvas.
+          * Host-supplied configuration: the SPARQL `queryFunction` transport, an optional `seed` set of entities to pre-populate the canvas with and an optional `ui` configuration. A DOM property (an object, not an attribute) passed in from outside the wrapper.  Read once on mount; not watched, as it only sets up the data source and initial canvas.
          */
         "config"?: ReactodiaConfig;
         /**
@@ -94,7 +94,7 @@ declare namespace LocalJSX {
      */
     interface GraphwiseReactodia {
         /**
-          * Host-supplied configuration: the SPARQL `queryFunction` transport and an optional `seed` set of entities to pre-populate the canvas with. A DOM property (an object, not an attribute) passed in from outside the wrapper.  Read once on mount; not watched, as it only sets up the data source and initial canvas.
+          * Host-supplied configuration: the SPARQL `queryFunction` transport, an optional `seed` set of entities to pre-populate the canvas with and an optional `ui` configuration. A DOM property (an object, not an attribute) passed in from outside the wrapper.  Read once on mount; not watched, as it only sets up the data source and initial canvas.
          */
         "config"?: ReactodiaConfig;
         /**

@@ -254,10 +254,10 @@
     "menu_toggle.title": "Ouvrir le menu"
   },
   "graphwise_toolbar_action": {
-    "download_diagram.label": "Exporter en JSON",
-    "download_diagram.title": "Exporter le diagramme en fichier JSON",
-    "upload_diagram.label": "Importer depuis JSON",
-    "upload_diagram.title": "Remplacer le diagramme par celui d'un fichier JSON"
+    "export_json.label": "Exporter en JSON",
+    "export_json.title": "Exporter le diagramme en fichier JSON",
+    "import_json.label": "Importer depuis JSON",
+    "import_json.title": "Remplacer le diagramme par celui d'un fichier JSON"
   },
   "toolbar_action": {
     "clear_all.command": "Tout effacer",

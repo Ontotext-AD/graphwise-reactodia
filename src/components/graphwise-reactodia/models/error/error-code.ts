@@ -13,5 +13,7 @@ export enum ErrorCode {
   /** Reading the diagram from local storage failed. */
   LOCAL_DIAGRAM_READ = 'local-diagram-read',
   /** Saving the diagram in local storage failed. */
-  LOCAL_DIAGRAM_SAVE = 'local-diagram-save'
+  LOCAL_DIAGRAM_SAVE = 'local-diagram-save',
+  /** The host's UI configuration has an unknown value, which is skipped. */
+  UNKNOWN_UI_CONFIG = 'unknown-ui-config'
 }

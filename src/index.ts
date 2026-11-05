@@ -3,3 +3,12 @@ export {GRAPHWISE_REACTODIA_EVENT} from './components/graphwise-reactodia/models
 export {EventType} from './components/graphwise-reactodia/models/event/event-type';
 export type {EventDetail} from './components/graphwise-reactodia/models/event/event-detail';export {ErrorCode} from './components/graphwise-reactodia/models/error/error-code';
 export type {ErrorReport} from './components/graphwise-reactodia/models/error/error-report';
+export type {ReactodiaConfig} from './components/graphwise-reactodia/models/reactodia-config';
+export type {Triple} from './components/graphwise-reactodia/models/triple';
+export type {SparqlQueryFunction} from './components/graphwise-reactodia/models/sparql/sparql-query-function';
+export type {SparqlQueryParams} from './components/graphwise-reactodia/models/sparql/sparql-query-params';
+export type {UiConfig} from './components/graphwise-reactodia/models/ui/ui-config';
+export type {ToolbarPosition} from './components/graphwise-reactodia/models/ui/toolbar-position';
+export {ToolbarDock} from './components/graphwise-reactodia/models/ui/toolbar-dock';
+export {MenuItem} from './components/graphwise-reactodia/models/ui/menu-item';
+export {NodeAction} from './components/graphwise-reactodia/models/ui/node-action';
