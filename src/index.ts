@@ -5,6 +5,7 @@ export type {EventDetail} from './components/graphwise-reactodia/models/event/ev
 export type {ErrorReport} from './components/graphwise-reactodia/models/error/error-report';
 export type {ReactodiaConfig} from './components/graphwise-reactodia/models/reactodia-config';
 export type {Triple} from './components/graphwise-reactodia/models/triple';
+export type {ResourceLinkUrlFunction} from './components/graphwise-reactodia/models/resource-link/resource-link-url-function';
 export type {SparqlQueryFunction} from './components/graphwise-reactodia/models/sparql/sparql-query-function';
 export type {SparqlQueryParams} from './components/graphwise-reactodia/models/sparql/sparql-query-params';
 export type {UiConfig} from './components/graphwise-reactodia/models/ui/ui-config';

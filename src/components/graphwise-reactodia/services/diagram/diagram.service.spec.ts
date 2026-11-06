@@ -1,4 +1,4 @@
-import type {DataDiagramModel, DataProvider, SerializedDiagram} from '@reactodia/workspace';
+import type {DataDiagramModel, DataLocaleProvider, DataProvider, SerializedDiagram} from '@reactodia/workspace';
 import {DiagramService} from './diagram.service';
 
 const HISTORY_CHANGED = 'historyChanged';
@@ -53,19 +53,20 @@ describe('DiagramService', () => {
     jest.clearAllMocks();
   });
 
-  test('importDiagram should import the layout with the data provider and validate its links', async () => {
-    // Given a model and a data provider
+  test('importDiagram should import the layout with the data provider and the locale and validate its links', async () => {
+    // Given a model, a data provider and a locale
     const importLayout = jest.fn().mockResolvedValue(undefined);
     const setSelection = jest.fn();
     const model = {importLayout, setSelection} as unknown as DataDiagramModel;
     const dataProvider = {} as DataProvider;
+    const locale = {} as DataLocaleProvider;
     const signal = new AbortController().signal;
 
     // When a diagram is imported
-    await service.importDiagram(model, dataProvider, layout, signal);
+    await service.importDiagram(model, dataProvider, locale, layout, signal);
 
-    // Then the layout is imported through the model with link validation
-    expect(importLayout).toHaveBeenCalledWith({dataProvider, diagram: layout, signal, validateLinks: true});
+    // Then the layout is imported through the model with the locale and link validation
+    expect(importLayout).toHaveBeenCalledWith({dataProvider, locale, diagram: layout, signal, validateLinks: true});
   });
 
   test('importDiagram should clear the selection before replacing the diagram content', async () => {
@@ -79,7 +80,7 @@ describe('DiagramService', () => {
     const model = {importLayout, setSelection} as unknown as DataDiagramModel;
 
     // When a diagram is imported
-    await service.importDiagram(model, {} as DataProvider, layout);
+    await service.importDiagram(model, {} as DataProvider, {} as DataLocaleProvider, layout);
 
     // Then the selection is emptied first, so the selection widgets stop painting the discarded cells
     expect(setSelection).toHaveBeenCalledWith([]);

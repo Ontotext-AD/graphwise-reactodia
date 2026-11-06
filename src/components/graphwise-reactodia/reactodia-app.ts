@@ -2,6 +2,7 @@ import {createElement} from 'react';
 import {createRoot, Root} from 'react-dom/client';
 import {
   DataDiagramModel,
+  DataLocaleProvider,
   DataProvider,
   DataProviderLookupParams,
   DecoratedDataProvider,
@@ -16,6 +17,7 @@ import {
 } from '@reactodia/workspace';
 import {blockingDefaultLayout} from '@reactodia/workspace/layout-sync';
 import {ReactodiaAppProps} from './models/reactodia-app-props';
+import {ResourceLinkLocaleProvider} from './locale/resource-link-locale-provider';
 import {Triple} from './models/triple';
 import {TRANSLATIONS} from './i18n/translations';
 import {LanguageKey} from './i18n/language-key';
@@ -118,9 +120,10 @@ function createDataProvider(props: ReactodiaAppProps): DataProvider {
  * Places the seed entities on the canvas. Each IRI is added as a placeholder element, and data is then loaded for the
  * respective nodes using the {@link DataDiagramModel.requestData} method.
  */
-async function seedIrisToCanvas(context: WorkspaceContext, dataProvider: DataProvider, seed: string[], signal: AbortSignal): Promise<void> {
+async function seedIrisToCanvas(context: WorkspaceContext, dataProvider: DataProvider, locale: DataLocaleProvider, seed: string[], signal: AbortSignal): Promise<void> {
   const {model, performLayout} = context;
-  await model.createNewDiagram({dataProvider, signal});
+  // not createNewDiagram, since it drops the locale
+  await model.importLayout({dataProvider, locale, signal});
   for (const iri of seed) {
     model.createElement(iri);
   }
@@ -133,9 +136,10 @@ async function seedIrisToCanvas(context: WorkspaceContext, dataProvider: DataPro
  * {@link seedIrisToCanvas} is that this method does not request link data from the SPARQL endpoint, since describe/construct
  * queries are not persisted in the DB. Here we expect provided links and query for element data only
  */
-async function seedGraphToCanvas(context: WorkspaceContext, dataProvider: DataProvider, links: readonly Triple[], signal: AbortSignal): Promise<void> {
+async function seedGraphToCanvas(context: WorkspaceContext, dataProvider: DataProvider, locale: DataLocaleProvider, links: readonly Triple[], signal: AbortSignal): Promise<void> {
   const {model, performLayout} = context;
-  await model.createNewDiagram({dataProvider, signal});
+  // not createNewDiagram, since it drops the locale
+  await model.importLayout({dataProvider, locale, signal});
   const uniqueIris = new Set<string>();
 
   links.forEach((link) => {
@@ -214,6 +218,7 @@ function ReactodiaApp(props: ReactodiaAppProps) {
     onDiagramChange(model);
     onClearDiagramStorage(model);
     const dataProvider = createDataProvider(props);
+    const locale = new ResourceLinkLocaleProvider({model, translation: context.translation}, config.getResourceLinkUrl);
     const isReload = props.isReload;
     const savedDiagram = diagramStorageService.load();
 
@@ -222,15 +227,15 @@ function ReactodiaApp(props: ReactodiaAppProps) {
         // Reload the diagram that is currently on the canvas. This may happen when the host changes the provider
         // settings, or when the user switches the language at runtime, since there is no existing mechanism to
         // re-translate the UI at runtime (not for the UI labels at least)
-        await diagramService.importDiagram(model, dataProvider, currentDiagram, signal);
+        await diagramService.importDiagram(model, dataProvider, locale, currentDiagram, signal);
       } else if (config.seedIris?.length) {
-        await seedIrisToCanvas(context, dataProvider, config.seedIris, signal);
+        await seedIrisToCanvas(context, dataProvider, locale, config.seedIris, signal);
       } else if (config.seedGraph?.length) {
-        await seedGraphToCanvas(context, dataProvider, config.seedGraph, signal);
+        await seedGraphToCanvas(context, dataProvider, locale, config.seedGraph, signal);
       } else {
         // Restore the previously saved layout when present, otherwise start empty. Either way this binds the
         // data provider (savedDiagram is undefined -> empty diagram), so the unified search/lookup works.
-        await diagramService.importDiagram(model, dataProvider, savedDiagram, signal);
+        await diagramService.importDiagram(model, dataProvider, locale, savedDiagram, signal);
       }
     } catch (error) {
       if (!signal.aborted) {
@@ -289,7 +294,8 @@ export async function updateReactodia(props: ReactodiaAppProps): Promise<void> {
   const {model} = workspaceContext;
   const dataProvider = createDataProvider(props);
   try {
-    await model.createNewDiagram({dataProvider});
+    // not createNewDiagram, since it drops the locale
+    await model.importLayout({dataProvider, locale: model.locale});
   } catch (error) {
     errorService.report(ErrorCode.DIAGRAM_LOAD, error);
   }
