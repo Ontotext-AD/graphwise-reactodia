@@ -1,4 +1,4 @@
-import type {DataDiagramModel, DataProvider, SerializedDiagram} from '@reactodia/workspace';
+import type {DataDiagramModel, DataLocaleProvider, DataProvider, SerializedDiagram} from '@reactodia/workspace';
 import {Service} from '../../providers/service/service';
 import {Subscription} from '../../models/subscription';
 
@@ -23,13 +23,14 @@ export class DiagramService {
    *
    * @param model The diagram model to import into.
    * @param dataProvider The data provider to bind to the diagram.
+   * @param locale The data locale provider to bind to the diagram.
    * @param diagram The serialization to import. When `undefined`, the diagram is cleared.
    * @param signal Optional signal to abort the import.
    */
-  importDiagram(model: DataDiagramModel, dataProvider: DataProvider, diagram: SerializedDiagram | undefined, signal?: AbortSignal): Promise<void> {
+  importDiagram(model: DataDiagramModel, dataProvider: DataProvider, locale: DataLocaleProvider, diagram: SerializedDiagram | undefined, signal?: AbortSignal): Promise<void> {
     // selection is not cleared on import, so we clear it manually to avoid painting the previous selection
     model.setSelection([]);
-    return model.importLayout({dataProvider, diagram, signal, validateLinks: true});
+    return model.importLayout({dataProvider, locale, diagram, signal, validateLinks: true});
   }
 
   /**

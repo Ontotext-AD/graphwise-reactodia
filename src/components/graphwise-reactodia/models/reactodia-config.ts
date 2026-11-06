@@ -1,4 +1,5 @@
 import {SparqlQueryFunction} from './sparql/sparql-query-function';
+import {ResourceLinkUrlFunction} from './resource-link/resource-link-url-function';
 import {Triple} from './triple';
 import {UiConfig} from './ui/ui-config';
 
@@ -15,6 +16,12 @@ export interface ReactodiaConfig {
    * HTTP layer (auth, interceptors) instead of a built-in `fetch`.
    */
   queryFunction: SparqlQueryFunction;
+
+  /**
+   * The URL a node's resource link leads to; it opens in a new tab. Not called for blank nodes.
+   * When omitted, the link leads to the node's IRI.
+   */
+  getResourceLinkUrl?: ResourceLinkUrlFunction;
 
   /**
    * IRIs of the elements(nodes) to place on the canvas on startup. When provided, each IRI is added
