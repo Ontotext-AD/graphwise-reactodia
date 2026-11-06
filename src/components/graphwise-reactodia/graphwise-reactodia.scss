@@ -20,4 +20,12 @@ graphwise-reactodia {
     border-radius: 50%;
     color: var(--_graphwise-reactodia-type-color-contrast);
   }
+
+  .reactodia-note-annotation {
+    overflow: auto;
+
+    &__editor {
+      overflow-wrap: anywhere;
+    }
+  }
 }
