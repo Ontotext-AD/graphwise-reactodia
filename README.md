@@ -66,6 +66,19 @@ persisted in the DB, so they can't be fetched lazily and must be supplied by the
 
 When both are supplied `seedGraph` takes precedence over `seedIris`.
 
+## Resource link
+
+`config.getResourceLinkUrl` (`ResourceLinkUrlFunction`, `(iri) => string`) returns the URL a node's resource link
+leads to. It applies to the IRI of an expanded node, the open link node action and the classic template. The link opens in a new tab.
+It is read once on mount and not called for blank nodes. When omitted, the link leads to the node's IRI.
+
+```ts
+element.config = {
+  queryFunction,
+  getResourceLinkUrl: (iri) => `https://example.com/view?iri=${encodeURIComponent(iri)}`
+};
+```
+
 ## UI configuration
 
 `config.ui` (`UiConfig`) changes the default UI configuration. It is JSON and read once on mount. It is partial and

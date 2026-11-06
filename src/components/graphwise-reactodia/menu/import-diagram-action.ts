@@ -19,7 +19,7 @@ export function ImportDiagramAction() {
   const importDiagram = async (file: File): Promise<void> => {
     try {
       const diagram = await diagramFileService.read(file);
-      await diagramService.importDiagram(model, model.dataProvider, diagram);
+      await diagramService.importDiagram(model, model.dataProvider, model.locale, diagram);
     } catch (error) {
       errorService.report(ErrorCode.DIAGRAM_IMPORT, error);
     }
