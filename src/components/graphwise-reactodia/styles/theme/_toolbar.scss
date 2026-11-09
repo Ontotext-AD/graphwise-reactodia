@@ -1,0 +1,13 @@
+graphwise-reactodia {
+  /** @prop --graphwise-reactodia-toolbar-background: Background of the zoom control */
+  --_graphwise-reactodia-toolbar-background: var(--graphwise-reactodia-toolbar-background);
+
+  /** @prop --graphwise-reactodia-toolbar-border-color: Border color of the zoom control */
+  --_graphwise-reactodia-toolbar-border-color: var(--graphwise-reactodia-toolbar-border-color);
+
+  // Unset properties leave Reactodia's look: no background, no border
+  .reactodia-zoom-control {
+    background-color: var(--_graphwise-reactodia-toolbar-background);
+    border: 1px solid var(--_graphwise-reactodia-toolbar-border-color);
+  }
+}

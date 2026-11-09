@@ -1,0 +1,24 @@
+graphwise-reactodia {
+  /** @prop --graphwise-reactodia-input-color: Text color of inputs, such as the search */
+  --_graphwise-reactodia-input-color: var(--graphwise-reactodia-input-color);
+
+  /** @prop --graphwise-reactodia-input-placeholder-color: Placeholder color of inputs */
+  --_graphwise-reactodia-input-placeholder-color: var(--graphwise-reactodia-input-placeholder-color);
+
+  /** @prop --graphwise-reactodia-input-background: Background of inputs */
+  --_graphwise-reactodia-input-background: var(--graphwise-reactodia-input-background);
+
+  /** @prop --graphwise-reactodia-input-border-color: Border color of inputs */
+  --_graphwise-reactodia-input-border-color: var(--graphwise-reactodia-input-border-color);
+
+  /** @prop --graphwise-reactodia-input-focus-border-color: Border color of focused inputs */
+  --_graphwise-reactodia-input-focus-border-color: var(--graphwise-reactodia-input-focus-border-color);
+
+  .reactodia-workspace {
+    --reactodia-input-color: var(--_graphwise-reactodia-input-color);
+    --reactodia-input-color-placeholder: var(--_graphwise-reactodia-input-placeholder-color);
+    --reactodia-input-background-color: var(--_graphwise-reactodia-input-background);
+    --reactodia-input-border-color: var(--_graphwise-reactodia-input-border-color);
+    --reactodia-input-border-color-focus: var(--_graphwise-reactodia-input-focus-border-color);
+  }
+}
