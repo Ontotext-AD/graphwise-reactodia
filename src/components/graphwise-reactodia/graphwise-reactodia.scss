@@ -18,7 +18,7 @@ graphwise-reactodia {
   }
 
   .reactodia-note-annotation {
-    overflow: auto;
+    overflow-y: scroll;
 
     &__editor {
       overflow-wrap: anywhere;
