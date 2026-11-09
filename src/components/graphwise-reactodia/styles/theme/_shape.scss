@@ -1,0 +1,10 @@
+graphwise-reactodia {
+  /** @prop --graphwise-reactodia-border-radius: Corner radius of buttons, inputs, dropdowns, dialogs and node shapes */
+  --_graphwise-reactodia-border-radius: var(--graphwise-reactodia-border-radius);
+
+  // Reactodia derives the other radii from these two
+  .reactodia-workspace {
+    --reactodia-border-radius-base: var(--_graphwise-reactodia-border-radius);
+    --reactodia-border-radius-s: var(--_graphwise-reactodia-border-radius);
+  }
+}

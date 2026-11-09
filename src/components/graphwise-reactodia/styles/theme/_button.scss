@@ -1,0 +1,32 @@
+graphwise-reactodia {
+  /** @prop --graphwise-reactodia-button-color: Text color of buttons */
+  --_graphwise-reactodia-button-color: var(--graphwise-reactodia-button-color);
+
+  /** @prop --graphwise-reactodia-button-background: Background of buttons */
+  --_graphwise-reactodia-button-background: var(--graphwise-reactodia-button-background);
+
+  /** @prop --graphwise-reactodia-button-border-color: Border color of buttons */
+  --_graphwise-reactodia-button-border-color: var(--graphwise-reactodia-button-border-color);
+
+  /** @prop --graphwise-reactodia-button-hover-background: Background of hovered and pressed buttons */
+  --_graphwise-reactodia-button-hover-background: var(--graphwise-reactodia-button-hover-background);
+
+  /** @prop --graphwise-reactodia-button-icon-color: Icon color of buttons and node actions */
+  --_graphwise-reactodia-button-icon-color: var(--graphwise-reactodia-button-icon-color);
+
+  .reactodia-workspace {
+    --reactodia-button-default-color: var(--_graphwise-reactodia-button-color);
+    --reactodia-button-default-color-focus: var(--_graphwise-reactodia-button-color);
+    --reactodia-button-default-background-color: var(--_graphwise-reactodia-button-background);
+    --reactodia-button-default-border-color: var(--_graphwise-reactodia-button-border-color);
+    --reactodia-button-default-background-color-focus: var(--_graphwise-reactodia-button-hover-background);
+    --reactodia-button-default-background-color-active: var(--_graphwise-reactodia-button-hover-background);
+    // Disabled buttons (undo, redo) keep the button background. Reactodia uses it for disabled inputs too.
+    --reactodia-input-background-color-disabled: var(--_graphwise-reactodia-button-background);
+  }
+
+  // Reactodia draws button icons as masks filled with the text color
+  .reactodia-btn::before {
+    background-color: var(--_graphwise-reactodia-button-icon-color, currentColor);
+  }
+}

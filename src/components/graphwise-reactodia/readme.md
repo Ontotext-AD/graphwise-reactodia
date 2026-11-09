@@ -37,29 +37,42 @@ wrapper and is supplied through the `providerSettings` prop.
 
 ## CSS Custom Properties
 
-| Name                                        | Description                                                               |
-| ------------------------------------------- | ------------------------------------------------------------------------- |
-| `--graphwise-reactodia-type-color-01`       | Color slot 1 of 20 for node types                                         |
-| `--graphwise-reactodia-type-color-02`       | Color slot 2 of 20 for node types                                         |
-| `--graphwise-reactodia-type-color-03`       | Color slot 3 of 20 for node types                                         |
-| `--graphwise-reactodia-type-color-04`       | Color slot 4 of 20 for node types                                         |
-| `--graphwise-reactodia-type-color-05`       | Color slot 5 of 20 for node types                                         |
-| `--graphwise-reactodia-type-color-06`       | Color slot 6 of 20 for node types                                         |
-| `--graphwise-reactodia-type-color-07`       | Color slot 7 of 20 for node types                                         |
-| `--graphwise-reactodia-type-color-08`       | Color slot 8 of 20 for node types                                         |
-| `--graphwise-reactodia-type-color-09`       | Color slot 9 of 20 for node types                                         |
-| `--graphwise-reactodia-type-color-10`       | Color slot 10 of 20 for node types                                        |
-| `--graphwise-reactodia-type-color-11`       | Color slot 11 of 20 for node types                                        |
-| `--graphwise-reactodia-type-color-12`       | Color slot 12 of 20 for node types                                        |
-| `--graphwise-reactodia-type-color-13`       | Color slot 13 of 20 for node types                                        |
-| `--graphwise-reactodia-type-color-14`       | Color slot 14 of 20 for node types                                        |
-| `--graphwise-reactodia-type-color-15`       | Color slot 15 of 20 for node types                                        |
-| `--graphwise-reactodia-type-color-16`       | Color slot 16 of 20 for node types                                        |
-| `--graphwise-reactodia-type-color-17`       | Color slot 17 of 20 for node types                                        |
-| `--graphwise-reactodia-type-color-18`       | Color slot 18 of 20 for node types                                        |
-| `--graphwise-reactodia-type-color-19`       | Color slot 19 of 20 for node types                                        |
-| `--graphwise-reactodia-type-color-20`       | Color slot 20 of 20 for node types                                        |
-| `--graphwise-reactodia-type-color-contrast` | Contrast color for categorical node styles (the letter inside the circle) |
+| Name                                             | Description                                                               |
+| ------------------------------------------------ | ------------------------------------------------------------------------- |
+| `--graphwise-reactodia-border-radius`            | Corner radius of buttons, inputs, dropdowns, dialogs and node shapes      |
+| `--graphwise-reactodia-button-background`        | Background of buttons                                                     |
+| `--graphwise-reactodia-button-border-color`      | Border color of buttons                                                   |
+| `--graphwise-reactodia-button-color`             | Text color of buttons                                                     |
+| `--graphwise-reactodia-button-hover-background`  | Background of hovered and pressed buttons                                 |
+| `--graphwise-reactodia-button-icon-color`        | Icon color of buttons and node actions                                    |
+| `--graphwise-reactodia-input-background`         | Background of inputs                                                      |
+| `--graphwise-reactodia-input-border-color`       | Border color of inputs                                                    |
+| `--graphwise-reactodia-input-color`              | Text color of inputs, such as the search                                  |
+| `--graphwise-reactodia-input-focus-border-color` | Border color of focused inputs                                            |
+| `--graphwise-reactodia-input-placeholder-color`  | Placeholder color of inputs                                               |
+| `--graphwise-reactodia-toolbar-background`       | Background of the zoom control                                            |
+| `--graphwise-reactodia-toolbar-border-color`     | Border color of the zoom control                                          |
+| `--graphwise-reactodia-type-color-01`            | Color slot 1 of 20 for node types                                         |
+| `--graphwise-reactodia-type-color-02`            | Color slot 2 of 20 for node types                                         |
+| `--graphwise-reactodia-type-color-03`            | Color slot 3 of 20 for node types                                         |
+| `--graphwise-reactodia-type-color-04`            | Color slot 4 of 20 for node types                                         |
+| `--graphwise-reactodia-type-color-05`            | Color slot 5 of 20 for node types                                         |
+| `--graphwise-reactodia-type-color-06`            | Color slot 6 of 20 for node types                                         |
+| `--graphwise-reactodia-type-color-07`            | Color slot 7 of 20 for node types                                         |
+| `--graphwise-reactodia-type-color-08`            | Color slot 8 of 20 for node types                                         |
+| `--graphwise-reactodia-type-color-09`            | Color slot 9 of 20 for node types                                         |
+| `--graphwise-reactodia-type-color-10`            | Color slot 10 of 20 for node types                                        |
+| `--graphwise-reactodia-type-color-11`            | Color slot 11 of 20 for node types                                        |
+| `--graphwise-reactodia-type-color-12`            | Color slot 12 of 20 for node types                                        |
+| `--graphwise-reactodia-type-color-13`            | Color slot 13 of 20 for node types                                        |
+| `--graphwise-reactodia-type-color-14`            | Color slot 14 of 20 for node types                                        |
+| `--graphwise-reactodia-type-color-15`            | Color slot 15 of 20 for node types                                        |
+| `--graphwise-reactodia-type-color-16`            | Color slot 16 of 20 for node types                                        |
+| `--graphwise-reactodia-type-color-17`            | Color slot 17 of 20 for node types                                        |
+| `--graphwise-reactodia-type-color-18`            | Color slot 18 of 20 for node types                                        |
+| `--graphwise-reactodia-type-color-19`            | Color slot 19 of 20 for node types                                        |
+| `--graphwise-reactodia-type-color-20`            | Color slot 20 of 20 for node types                                        |
+| `--graphwise-reactodia-type-color-contrast`      | Contrast color for categorical node styles (the letter inside the circle) |
 
 
 ----------------------------------------------
