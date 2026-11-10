@@ -2,6 +2,7 @@ node_modules/
 dist/
 loader/
 www/
+THIRD-PARTY-LICENSES.txt
 *.log
 .DS_Store
 /.idea/

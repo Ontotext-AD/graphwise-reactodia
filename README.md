@@ -237,3 +237,6 @@ The published bundle includes [Reactodia Workspace](https://github.com/reactodia
 (`LGPL-2.1-or-later`), built from our [fork](https://github.com/Ontotext-AD/reactodia-workspace-fork) and used
 under LGPL-3.0 through its "or later" option. The source for a release is tag `v<version>` of this repo
 together with the fork commit its `reactodia-workspace` submodule pins. See [`NOTICE`](NOTICE).
+
+The build writes the licences of the bundled third-party packages to `THIRD-PARTY-LICENSES.txt`. The third-party
+code and icons copied into the fork are listed in [`reactodia-workspace/THIRDPARTY.md`](reactodia-workspace/THIRDPARTY.md).

@@ -39,3 +39,13 @@ Copyright (C) 2026 Ontotext AD. Modified from reactodia-workspace v0.35.0.
 Reactodia Workspace is licensed under the GNU Lesser General Public License
 version 2.1 or (at your option) any later version. It is incorporated here
 under version 3 of that license, as permitted by that option.
+
+-------------------------------------------------------------------------------
+
+Third-party components
+
+The third-party packages bundled into dist/ and their licences are listed
+in THIRD-PARTY-LICENSES.txt.
+
+The third-party code and icons copied into Reactodia Workspace are listed
+in reactodia-workspace/THIRDPARTY.md.
