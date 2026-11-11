@@ -1,5 +1,4 @@
 import type {SerializedDiagram} from '@reactodia/workspace';
-import {Service} from '../../providers/service/service';
 import {service} from '../../providers/service/service-inject';
 import {WindowService} from '../window/window.service';
 import {ErrorService} from '../error/error.service';
@@ -8,10 +7,7 @@ import {ErrorCode} from '../../models/error/error-code';
 /**
  * Service for local store-related diagram operations
  */
-@Service
 export class DiagramStorageService {
-  static readonly ID = 'DiagramStorageService';
-
   private static readonly STORAGE_KEY = 'diagram.state';
 
   private readonly errorService = service(ErrorService);

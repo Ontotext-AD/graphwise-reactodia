@@ -1,4 +1,3 @@
-import {Service} from '../../providers/service/service';
 import {Subscription} from '../../models/subscription';
 import {CLEAR_DIAGRAM_STORAGE_EVENT} from '../../models/clear-diagram-storage-event';
 import {EventCallback} from '../../models/event/event-callback';
@@ -9,10 +8,7 @@ import {WindowService} from '../window/window.service';
 /**
  * Service for event based operations
  */
-@Service
 export class EventService {
-  static readonly ID = 'EventService';
-
   private callback?: EventCallback;
 
   /**

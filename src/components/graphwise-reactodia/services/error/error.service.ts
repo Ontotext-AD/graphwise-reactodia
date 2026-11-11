@@ -1,4 +1,3 @@
-import {Service} from '../../providers/service/service';
 import {service} from '../../providers/service/service-inject';
 import {ErrorCause} from '../../models/error/error-cause';
 import {ErrorCode} from '../../models/error/error-code';
@@ -8,10 +7,7 @@ import {EventService} from '../event/event.service';
 /**
  * Service that collects the failures of the wrapper and the fork, so they can be announced to the host.
  */
-@Service
 export class ErrorService {
-  static readonly ID = 'ErrorService';
-
   private static readonly ABORT_ERROR_NAME = 'AbortError';
 
   private readonly eventService = service(EventService);
