@@ -1,5 +1,4 @@
 import type {SerializedDiagram} from '@reactodia/workspace';
-import {Service} from '../../providers/service/service';
 import {service} from '../../providers/service/service-inject';
 import {WindowService} from '../window/window.service';
 
@@ -7,10 +6,7 @@ import {WindowService} from '../window/window.service';
  * Service for downloading and uploading the diagram as a file. The file content is the same
  * {@link SerializedDiagram} that is persisted to the local store.
  */
-@Service
 export class DiagramFileService {
-  static readonly ID = 'DiagramFileService';
-
   static readonly FILE_EXTENSION = '.json';
 
   private static readonly MIME_TYPE = 'application/json';

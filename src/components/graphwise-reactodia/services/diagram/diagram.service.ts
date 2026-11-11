@@ -1,5 +1,4 @@
 import type {DataDiagramModel, DataLocaleProvider, DataProvider, SerializedDiagram} from '@reactodia/workspace';
-import {Service} from '../../providers/service/service';
 import {Subscription} from '../../models/subscription';
 
 /**
@@ -10,10 +9,7 @@ export type DiagramChangeCallback = (diagram: SerializedDiagram) => void;
 /**
  * Service for diagram related operations and subscriptions
  */
-@Service
 export class DiagramService {
-  static readonly ID = 'DiagramService';
-
   private static readonly NOTIFY_DEBOUNCE_MS = 300;
   private static readonly HISTORY_CHANGED_EVENT = 'historyChanged';
 
