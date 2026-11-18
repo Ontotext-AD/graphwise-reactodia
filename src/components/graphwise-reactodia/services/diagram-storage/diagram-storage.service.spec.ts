@@ -6,25 +6,19 @@ import {ErrorCode} from '../../models/error/error-code';
 import {ServiceProvider} from '../../providers/service/service.provider';
 import {createStorageMock, StorageMock} from '../../testing/storage.mock';
 
-const STORAGE_KEY = 'diagram.state';
+const STORAGE_KEY = 'host.graph-navigator.diagram';
 
 describe('DiagramStorageService', () => {
-  const diagram = {layoutData: {elements: [], links: []}} as unknown as SerializedDiagram;
+  const diagram = {layoutData: {elements: [{'@type': 'Element', '@id': 'e1'}], links: []}} as unknown as SerializedDiagram;
+  const emptyDiagram = {layoutData: {elements: [], links: []}} as unknown as SerializedDiagram;
   let diagramStorageService: DiagramStorageService;
   let storage: StorageMock;
-  let windowServiceMock: jest.Mocked<WindowService>;
   let errorServiceMock: jest.Mocked<ErrorService>;
 
   beforeEach(() => {
     storage = createStorageMock();
-
-    windowServiceMock = {
-      getWindow: jest.fn(() => ({localStorage: storage}) as unknown as Window),
-    } as unknown as jest.Mocked<WindowService>;
-
-    errorServiceMock = {
-      report: jest.fn(),
-    } as unknown as jest.Mocked<ErrorService>;
+    const windowServiceMock = {getWindow: jest.fn(() => ({localStorage: storage}) as unknown as Window)};
+    errorServiceMock = {report: jest.fn()} as unknown as jest.Mocked<ErrorService>;
 
     // Only the services used by the test are stubbed; the cast bridges get's generic return type.
     jest.spyOn(ServiceProvider, 'get').mockImplementation((type) => {
@@ -37,22 +31,51 @@ describe('DiagramStorageService', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    jest.restoreAllMocks();
   });
 
   test('load returns undefined when nothing is stored', () => {
     // When loading with an empty store
     // Then nothing is returned
-    expect(diagramStorageService.load()).toBeUndefined();
+    expect(diagramStorageService.load(STORAGE_KEY)).toBeUndefined();
   });
 
-  test('load returns the parsed diagram when a valid value is stored', () => {
-    // Given a serialized diagram is present under the storage key
-    storage.setItem(STORAGE_KEY, JSON.stringify(diagram));
+  test('save persists the diagram under the storage key', () => {
+    // When a diagram is saved
+    diagramStorageService.save(STORAGE_KEY, diagram);
 
-    // When the diagram is loaded
-    // Then the parsed diagram is returned
-    expect(diagramStorageService.load()).toEqual(diagram);
+    // Then the diagram is written under the storage key
+    expect(JSON.parse(storage.getItem(STORAGE_KEY) as string)).toEqual(diagram);
+  });
+
+  test('save round-trips through load', () => {
+    // When a diagram is saved and loaded back
+    diagramStorageService.save(STORAGE_KEY, diagram);
+
+    // Then the loaded diagram equals the saved one
+    expect(diagramStorageService.load(STORAGE_KEY)).toEqual(diagram);
+  });
+
+  test('save removes the stored diagram when the diagram has no elements', () => {
+    // Given a saved diagram
+    diagramStorageService.save(STORAGE_KEY, diagram);
+
+    // When a diagram without elements is saved (e.g. the canvas is emptied)
+    diagramStorageService.save(STORAGE_KEY, emptyDiagram);
+
+    // Then nothing is stored
+    expect(storage.getItem(STORAGE_KEY)).toBeNull();
+  });
+
+  test('load ignores a diagram stored under another key', () => {
+    // Given a diagram saved under one key
+    diagramStorageService.save(STORAGE_KEY, diagram);
+
+    // When it is loaded under another key
+    // Then nothing is returned
+    expect(diagramStorageService.load('other.key')).toBeUndefined();
+    // And the diagram under the first key is untouched
+    expect(diagramStorageService.load(STORAGE_KEY)).toEqual(diagram);
   });
 
   test('load reports an unreadable value and returns undefined', () => {
@@ -60,7 +83,7 @@ describe('DiagramStorageService', () => {
     storage.setItem(STORAGE_KEY, '{not a diagram');
 
     // When the diagram is loaded
-    const loaded = diagramStorageService.load();
+    const loaded = diagramStorageService.load(STORAGE_KEY);
 
     // Then nothing is returned
     expect(loaded).toBeUndefined();
@@ -77,42 +100,26 @@ describe('DiagramStorageService', () => {
 
     // When a diagram is saved
     // Then it does not throw
-    expect(() => diagramStorageService.save(diagram)).not.toThrow();
+    expect(() => diagramStorageService.save(STORAGE_KEY, diagram)).not.toThrow();
     // And the failure is reported
     expect(errorServiceMock.report).toHaveBeenCalledWith(ErrorCode.LOCAL_DIAGRAM_SAVE, error);
   });
 
-  test('save persists the serialized diagram under the storage key', () => {
-    // When a diagram is saved
-    diagramStorageService.save(diagram);
-
-    // Then its serialization is written under the storage key
-    expect(storage.getItem(STORAGE_KEY)).toEqual(JSON.stringify(diagram));
-  });
-
-  test('save round-trips through load', () => {
-    // When a diagram is saved and loaded back
-    diagramStorageService.save(diagram);
-
-    // Then the loaded diagram equals the saved one
-    expect(diagramStorageService.load()).toEqual(diagram);
-  });
-
   test('clear removes the persisted diagram', () => {
     // Given a saved diagram
-    diagramStorageService.save(diagram);
+    diagramStorageService.save(STORAGE_KEY, diagram);
 
     // When the store is cleared
-    diagramStorageService.clear();
+    diagramStorageService.clear(STORAGE_KEY);
 
     // Then nothing remains to load
-    expect(diagramStorageService.load()).toBeUndefined();
+    expect(diagramStorageService.load(STORAGE_KEY)).toBeUndefined();
   });
 
   test('clear is a no-op when nothing is stored', () => {
     // When clearing an empty store
     // Then it neither throws nor leaves anything behind
-    expect(() => diagramStorageService.clear()).not.toThrow();
-    expect(diagramStorageService.load()).toBeUndefined();
+    expect(() => diagramStorageService.clear(STORAGE_KEY)).not.toThrow();
+    expect(diagramStorageService.load(STORAGE_KEY)).toBeUndefined();
   });
 });

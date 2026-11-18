@@ -44,4 +44,9 @@ export interface ReactodiaConfig {
    * A partial UI configuration, merged over the default UI configuration. JSON-serializable.
    */
   ui?: UiConfig;
+
+  /**
+   * The local storage key the diagram is persisted under. Read once, on mount. Defaults to `diagram.state`.
+   */
+  storageKey?: string;
 }
