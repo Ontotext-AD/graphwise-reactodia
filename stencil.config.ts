@@ -1,7 +1,7 @@
 import {Config} from '@stencil/core';
 import {sass} from '@stencil/sass';
 import nodePolyfills from 'rollup-plugin-node-polyfills';
-import license from 'rollup-plugin-license';
+import {bundledLibraries} from './build/bundled-libraries';
 import path from 'path';
 
 export const config: Config = {
@@ -56,12 +56,13 @@ export const config: Config = {
   // Reactodia uses some Node APIs. Polyfill them for the browser bundle.
   // https://stenciljs.com/docs/module-bundling#node-polyfills
   rollupPlugins: {
-    // Lists the licences of the packages bundled into dist/.
-    before: [
-      license({thirdParty: {output: {file: path.join(__dirname, 'THIRD-PARTY-LICENSES.txt')}}}),
-    ],
     after: [
       nodePolyfills(),
+      // Lists the libraries bundled into dist/ with their licences.
+      bundledLibraries({
+        sbomFile: path.join(__dirname, 'sbom.cdx.json'),
+        licensesFile: path.join(__dirname, 'THIRD-PARTY-LICENSES.txt'),
+      }),
     ],
   },
 };
