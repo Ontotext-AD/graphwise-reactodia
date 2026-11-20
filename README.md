@@ -118,6 +118,28 @@ element.config = {
 
 An unknown value is skipped and reported as `unknown-ui-config`; an unknown dock keeps the default toolbar position.
 
+## Persisting the diagram
+
+The diagram is saved to local storage on every change and restored when the element mounts without a seed. Only one
+diagram is kept. A diagram without elements is not stored: its key is removed, so the host can tell from the key alone
+whether something is drawn.
+
+`config.storageKey` is the local storage key the diagram is kept under, e.g. one in the host's namespace. It is read
+once on mount and defaults to `diagram.state`.
+
+```ts
+element.config = {queryFunction, storageKey: 'my-app.graph-navigator.diagram'};
+```
+
+The host drops the persisted diagram by dispatching `CLEAR_DIAGRAM_STORAGE_EVENT` on `window`, or, while the element
+is not mounted, by removing the key itself. With it the host chooses how long the diagram is kept:
+
+- Across navigation (the default): the host does not clear it, so it is restored when the user comes back.
+- Only across a page refresh: the host dispatches the event when the user leaves the view.
+
+The element does not know which repository a diagram was drawn in. A host that should not restore a diagram in
+another repository keeps track of that itself and removes the key before the element mounts.
+
 ## Events
 
 The element sends every event to the host through one DOM event, `graphwiseReactodiaEvent`. The event

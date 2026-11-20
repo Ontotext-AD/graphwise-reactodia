@@ -1,5 +1,5 @@
 import type {DataDiagramModel, DataLocaleProvider, DataProvider, SerializedDiagram} from '@reactodia/workspace';
-import {Subscription} from '../../models/subscription';
+import {DiagramChangeSubscription} from '../../models/diagram-change-subscription';
 
 /**
  * Callback invoked with the current diagram layout whenever it changes.
@@ -37,10 +37,10 @@ export class DiagramService {
    *
    * @param model The diagram model to observe.
    * @param onChangeCallback Called with the exported layout when the diagram changes.
-   * @returns A {@link Subscription} that, when called, removes the listener and drops any
-   * pending notification.
+   * @returns A {@link DiagramChangeSubscription} that, when called, removes the listener and drops any
+   * pending notification, and whose `flush` delivers a pending notification at once.
    */
-  subscribeToDiagramChange(model: DataDiagramModel, onChangeCallback: DiagramChangeCallback): Subscription {
+  subscribeToDiagramChange(model: DataDiagramModel, onChangeCallback: DiagramChangeCallback): DiagramChangeSubscription {
     let notifyTimer: ReturnType<typeof setTimeout> | undefined;
 
     const onHistoryChange = (): void => {
@@ -57,12 +57,25 @@ export class DiagramService {
 
     model.history.events.on(DiagramService.HISTORY_CHANGED_EVENT, onHistoryChange);
 
-    return () => {
-      model.history.events.off(DiagramService.HISTORY_CHANGED_EVENT, onHistoryChange);
+    const cancelPendingNotification = (): void => {
       if (notifyTimer) {
         clearTimeout(notifyTimer);
         notifyTimer = undefined;
       }
     };
+
+    const unsubscribe = (): void => {
+      model.history.events.off(DiagramService.HISTORY_CHANGED_EVENT, onHistoryChange);
+      cancelPendingNotification();
+    };
+
+    const flush = (): void => {
+      if (notifyTimer) {
+        cancelPendingNotification();
+        onChangeCallback(model.exportLayout());
+      }
+    };
+
+    return Object.assign(unsubscribe, {flush});
   }
 }

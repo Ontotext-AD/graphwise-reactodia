@@ -131,6 +131,10 @@ export class GraphwiseReactodiaSteps {
     cy.getByTestId('switch-repository').click();
   }
 
+  static setStorageKey() {
+    cy.getByTestId('set-storage-key').click();
+  }
+
   static setSeed() {
     cy.getByTestId('set-seed').click();
   }
@@ -190,8 +194,14 @@ export class GraphwiseReactodiaSteps {
     cy.getByTestId('clear-diagram-storage').click();
   }
 
-  static getStoredDiagram() {
-    return cy.window().its('localStorage').invoke('getItem', 'diagram.state');
+  /**
+   * The raw value persisted under the given key.
+   *
+   * @param {string} storageKey The local storage key; the component's default storage key when omitted.
+   * @returns The Cypress chain of the raw value, or `null` when nothing is stored.
+   */
+  static getStoredDiagram(storageKey = 'diagram.state') {
+    return cy.window().its('localStorage').invoke('getItem', storageKey);
   }
 
   static setStoredDiagram(raw) {
@@ -200,9 +210,13 @@ export class GraphwiseReactodiaSteps {
 
   /**
    * Retries until the diagram persisted to local storage has the given number of elements (the save is debounced).
+   *
+   * @param {number} count The expected number of elements.
+   * @param {string} storageKey The local storage key; the component's default storage key when omitted.
+   * @returns The Cypress chain of the assertion.
    */
-  static storedDiagramShouldHaveElements(count) {
-    return this.getStoredDiagram().should((raw) => {
+  static storedDiagramShouldHaveElements(count, storageKey) {
+    return this.getStoredDiagram(storageKey).should((raw) => {
       expect(raw).to.not.be.null;
       expect(JSON.parse(raw).layoutData.elements).to.have.length(count);
     });
