@@ -45,7 +45,7 @@ under version 3 of that license, as permitted by that option.
 Third-party components
 
 The third-party packages bundled into dist/ and their licences are listed
-in THIRD-PARTY-LICENSES.txt.
+in THIRD-PARTY-LICENSES.txt, and as a CycloneDX SBOM in sbom.cdx.json.
 
 The third-party code and icons copied into Reactodia Workspace are listed
 in reactodia-workspace/THIRDPARTY.md.
