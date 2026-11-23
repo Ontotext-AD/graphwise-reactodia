@@ -3,6 +3,7 @@ dist/
 loader/
 www/
 THIRD-PARTY-LICENSES.txt
+sbom.cdx.json
 *.log
 .DS_Store
 /.idea/

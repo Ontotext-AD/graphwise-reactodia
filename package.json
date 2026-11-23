@@ -26,6 +26,7 @@
     "COPYING.LESSER",
     "NOTICE",
     "THIRD-PARTY-LICENSES.txt",
+    "sbom.cdx.json",
     "reactodia-workspace/THIRDPARTY.md"
   ],
   "scripts": {
@@ -53,7 +54,6 @@
     "jest-cli": "^29.7.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "rollup-plugin-license": "3.7.1",
     "rollup-plugin-node-polyfills": "^0.2.1"
   },
   "overrides": {
