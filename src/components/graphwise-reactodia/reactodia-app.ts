@@ -23,12 +23,12 @@ import {TRANSLATIONS} from './i18n/translations';
 import {LanguageKey} from './i18n/language-key';
 import {service} from './providers/service/service-inject';
 import {DiagramService} from './services/diagram/diagram.service';
+import {DiagramChangeSubscription} from './models/diagram-change-subscription';
 import {DiagramStorageService} from './services/diagram-storage/diagram-storage.service';
 import {EventService} from './services/event/event.service';
 import {ErrorService} from './services/error/error.service';
 import {ErrorCode} from './models/error/error-code';
 import {EventType} from './models/event/event-type';
-import {Subscription} from './models/subscription';
 import {SubscriptionList} from './models/subscription-list';
 import {resolveTypeStyle} from './styles/type-style.resolver';
 import {toWorkspaceProps, UiConfigProps} from './ui-config/ui-config-mapper';
@@ -59,7 +59,12 @@ let workspaceContext: WorkspaceContext | null = null;
  */
 const subscriptions = new SubscriptionList();
 
-let diagramStorageSubscription: Subscription | undefined;
+let diagramStorageSubscription: DiagramChangeSubscription | undefined;
+
+/**
+ * The local storage key the diagram is persisted under, see `ReactodiaConfig.storageKey`.
+ */
+let storageKey = DiagramStorageService.DEFAULT_STORAGE_KEY;
 
 /**
  * The `DefaultWorkspace` props from the host's UI configuration. Kept across reloads, so unknown values are reported
@@ -174,10 +179,12 @@ function onDiagramChange(model: DataDiagramModel): void {
 
 /**
  * Starts persisting the model's edits to local storage, keeping the subscription in {@link diagramStorageSubscription}.
+ *
+ * @param model The diagram model whose edits are persisted.
  */
 function subscribeToDiagramChange(model: DataDiagramModel): void {
   diagramStorageSubscription?.();
-  diagramStorageSubscription = diagramService.subscribeToDiagramChange(model, (diagram) => diagramStorageService.save(diagram));
+  diagramStorageSubscription = diagramService.subscribeToDiagramChange(model, (diagram) => diagramStorageService.save(storageKey, diagram));
   subscriptions.add(diagramStorageSubscription);
 }
 
@@ -194,7 +201,7 @@ function onClearDiagramStorage(model: DataDiagramModel): void {
     eventService.subscribeToClearDiagramStorage(() => {
       // re-subscribe, to avoid any pending debounced saves, which may write over the cleared diagram
       subscribeToDiagramChange(model);
-      diagramStorageService.clear();
+      diagramStorageService.clear(storageKey);
     })
   );
 }
@@ -214,13 +221,14 @@ function ReactodiaApp(props: ReactodiaAppProps) {
 
   const {onMount} = useLoadedWorkspace(async ({context, signal}) => {
     workspaceContext = context;
+    storageKey = config.storageKey ?? DiagramStorageService.DEFAULT_STORAGE_KEY;
     const {model} = context;
     onDiagramChange(model);
     onClearDiagramStorage(model);
     const dataProvider = createDataProvider(props);
     const locale = new ResourceLinkLocaleProvider({model, translation: context.translation}, config.getResourceLinkUrl);
     const isReload = props.isReload;
-    const savedDiagram = diagramStorageService.load();
+    const savedDiagram = diagramStorageService.load(storageKey);
 
     try {
       if (isReload) {
@@ -313,6 +321,8 @@ export function exportReactodiaLayout(): SerializedDiagram | undefined {
  * Unmounts the Reactodia application.
  */
 export function unmountReactodia(root: Root): void {
+  // save the edits made within the debounce window, so they are not lost when the host leaves the view
+  diagramStorageSubscription?.flush();
   subscriptions.unsubscribeAll();
   uiConfigProps = undefined;
   root.unmount();

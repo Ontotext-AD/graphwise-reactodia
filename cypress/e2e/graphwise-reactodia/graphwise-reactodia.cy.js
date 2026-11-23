@@ -164,6 +164,45 @@ describe('graphwise-reactodia', () => {
     GraphwiseReactodiaSteps.getElements().should('not.exist');
   });
 
+  it('Should not persist a diagram without elements', () => {
+    // Given a persisted diagram with two nodes
+    GraphwiseReactodiaSteps.setSeed();
+    GraphwiseReactodiaSteps.provideRequiredProps();
+    GraphwiseReactodiaSteps.storedDiagramShouldHaveElements(2);
+
+    // When the user removes both nodes
+    GraphwiseReactodiaSteps.selectFirstElement();
+    GraphwiseReactodiaSteps.getRemoveNodeAction().click();
+    GraphwiseReactodiaSteps.selectFirstElement();
+    GraphwiseReactodiaSteps.getRemoveNodeAction().click();
+    GraphwiseReactodiaSteps.getElements().should('not.exist');
+
+    // Then nothing is persisted
+    GraphwiseReactodiaSteps.getStoredDiagram().should('be.null');
+  });
+
+  it('Should persist the diagram under the storage key set by the host', () => {
+    // Given the host sets its own storage key
+    GraphwiseReactodiaSteps.setStorageKey();
+
+    // When a seeded workspace mounts
+    GraphwiseReactodiaSteps.setSeed();
+    GraphwiseReactodiaSteps.provideRequiredProps();
+
+    // Then the diagram is persisted under the host's key
+    GraphwiseReactodiaSteps.storedDiagramShouldHaveElements(2, 'host.graph-navigator.diagram');
+    // And not under the default key
+    GraphwiseReactodiaSteps.getStoredDiagram().should('be.null');
+
+    // When the page is refreshed and mounted again with the same key, without a seed
+    GraphwiseReactodiaSteps.visit();
+    GraphwiseReactodiaSteps.setStorageKey();
+    GraphwiseReactodiaSteps.provideRequiredProps();
+
+    // Then the diagram is restored
+    GraphwiseReactodiaSteps.getElements().should('have.length', 2);
+  });
+
   it('Should seed the canvas with the pre-resolved graph, drawing its edges directly', () => {
     // Given a pre-resolved graph seed (e.g. a CONSTRUCT result) staged before the workspace mounts
     GraphwiseReactodiaSteps.setSeedGraph();

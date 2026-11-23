@@ -5,24 +5,26 @@ import {ErrorService} from '../error/error.service';
 import {ErrorCode} from '../../models/error/error-code';
 
 /**
- * Service for local store-related diagram operations
+ * Service for local store-related diagram operations. Only one diagram is kept per storage key.
  */
 export class DiagramStorageService {
-  private static readonly STORAGE_KEY = 'diagram.state';
+  /**
+   * The storage key used when the host does not set one.
+   */
+  static readonly DEFAULT_STORAGE_KEY = 'diagram.state';
 
   private readonly errorService = service(ErrorService);
 
   /**
-   * Load the persisted diagram from the local store, or `undefined` when nothing is stored (or the stored value
-   * is unreadable).
+   * Loads the persisted diagram.
+   *
+   * @param storageKey The local storage key.
+   * @returns The diagram, or `undefined` when nothing is stored or the value is unreadable.
    */
-  load(): SerializedDiagram | undefined {
+  load(storageKey: string): SerializedDiagram | undefined {
     try {
-      const raw = this.storage.getItem(DiagramStorageService.STORAGE_KEY);
-      if (!raw) {
-        return undefined;
-      }
-      return JSON.parse(raw) as SerializedDiagram;
+      const raw = this.storage.getItem(storageKey);
+      return raw ? JSON.parse(raw) as SerializedDiagram : undefined;
     } catch (error) {
       this.errorService.report(ErrorCode.LOCAL_DIAGRAM_READ, error);
       return undefined;
@@ -30,27 +32,33 @@ export class DiagramStorageService {
   }
 
   /**
-   * Persists the given diagram serialization.
+   * Persists the diagram, replacing any stored diagram. A diagram without elements is removed instead, so the host
+   * can tell from the key alone whether something is drawn. A failed write is reported.
+   *
+   * @param storageKey The local storage key.
+   * @param diagram The serialized diagram.
    */
-  save(diagram: SerializedDiagram): void {
+  save(storageKey: string, diagram: SerializedDiagram): void {
+    if (!diagram.layoutData.elements.length) {
+      this.clear(storageKey);
+      return;
+    }
     try {
-      this.storage.setItem(DiagramStorageService.STORAGE_KEY, JSON.stringify(diagram));
+      this.storage.setItem(storageKey, JSON.stringify(diagram));
     } catch (error) {
       this.errorService.report(ErrorCode.LOCAL_DIAGRAM_SAVE, error);
     }
   }
 
   /**
-   * Removes the persisted diagram. Used when a new view (a seed) should take precedence over
-   * previously saved edits.
+   * Removes the persisted diagram.
+   *
+   * @param storageKey The local storage key.
    */
-  clear(): void {
-    this.storage.removeItem(DiagramStorageService.STORAGE_KEY);
+  clear(storageKey: string): void {
+    this.storage.removeItem(storageKey);
   }
 
-  /**
-   * Local storage getter
-   */
   private get storage(): Storage {
     return service(WindowService).getWindow().localStorage;
   }

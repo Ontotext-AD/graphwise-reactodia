@@ -138,6 +138,13 @@ function setEmptyMenuUi() {
   reactodia.config = {...reactodia.config, ui: {menu: {items: []}}};
 }
 
+// The host's own local storage key, e.g. one in the host's namespace.
+const HOST_STORAGE_KEY = 'host.graph-navigator.diagram';
+
+function setStorageKey() {
+  reactodia.config = {...reactodia.config, storageKey: HOST_STORAGE_KEY};
+}
+
 function setRepository(repository) {
   reactodia.currentRepository = repository;
 }

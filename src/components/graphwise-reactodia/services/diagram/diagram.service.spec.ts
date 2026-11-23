@@ -146,6 +146,40 @@ describe('DiagramService', () => {
     expect(model.off).toHaveBeenCalledWith(HISTORY_CHANGED, handler);
   });
 
+  test('should notify a pending change at once on flush', () => {
+    // Given a subscription with a change pending in the debounce window
+    const model = mockModel(layout);
+    const onChange = jest.fn();
+    const subscription = service.subscribeToDiagramChange(model.model, onChange);
+    model.emitHistoryChanged();
+
+    // When the subscription is flushed
+    subscription.flush();
+
+    // Then the callback is invoked at once with the current layout
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(onChange).toHaveBeenCalledWith(layout);
+
+    // And the debounce window elapsing does not notify again
+    jest.advanceTimersByTime(DEBOUNCE_MS);
+    expect(onChange).toHaveBeenCalledTimes(1);
+  });
+
+  test('should not notify on flush when no change is pending', () => {
+    // Given a subscription whose last change was already notified
+    const model = mockModel(layout);
+    const onChange = jest.fn();
+    const subscription = service.subscribeToDiagramChange(model.model, onChange);
+    model.emitHistoryChanged();
+    jest.advanceTimersByTime(DEBOUNCE_MS);
+
+    // When the subscription is flushed
+    subscription.flush();
+
+    // Then the callback is not invoked again
+    expect(onChange).toHaveBeenCalledTimes(1);
+  });
+
   test('should ignore changes emitted after unsubscribe', () => {
     // Given a released subscription
     const model = mockModel(layout);
