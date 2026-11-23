@@ -260,5 +260,6 @@ The published bundle includes [Reactodia Workspace](https://github.com/reactodia
 under LGPL-3.0 through its "or later" option. The source for a release is tag `v<version>` of this repo
 together with the fork commit its `reactodia-workspace` submodule pins. See [`NOTICE`](NOTICE).
 
-The build writes the licences of the bundled third-party packages to `THIRD-PARTY-LICENSES.txt`. The third-party
+The build writes the licences of the bundled third-party packages to `THIRD-PARTY-LICENSES.txt`, and lists the same
+packages with their versions and purls in the CycloneDX SBOM `sbom.cdx.json`. Both files are in the published package. The third-party
 code and icons copied into the fork are listed in [`reactodia-workspace/THIRDPARTY.md`](reactodia-workspace/THIRDPARTY.md).
